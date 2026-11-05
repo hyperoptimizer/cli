@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -24,7 +23,6 @@ func TestOrganizationDefaultIsBoundToCredentialAndOverrideDoesNotChangeIt(t *tes
 	defer server.Close()
 	app, _, _ := testApp(server.URL)
 	setEnvironmentKey(app, "", false)
-	app.CredentialFile = filepath.Join(t.TempDir(), "key")
 	if err := app.saveCredential("ho_user"); err != nil {
 		t.Fatal(err)
 	}
@@ -65,16 +63,14 @@ func TestOrganizationListWorksWithRemovedDefaultAndShowsPlans(t *testing.T) {
 	defer server.Close()
 	app, out, _ := testApp(server.URL)
 	setEnvironmentKey(app, "", false)
-	app.CredentialFile = filepath.Join(t.TempDir(), "key")
 	if err := app.saveCredential("ho_user"); err != nil {
 		t.Fatal(err)
 	}
 	if err := app.saveDefaultOrganization("ho_user", "removed"); err != nil {
 		t.Fatal(err)
 	}
-	credentialPath := app.CredentialFile
 	cmd := app.Command()
-	cmd.SetArgs([]string{"org", "list", "--credential-file", credentialPath, "--output", "plain"})
+	cmd.SetArgs([]string{"org", "list", "--output", "plain"})
 	if err := cmd.Execute(); err != nil {
 		t.Fatal(err)
 	}
@@ -88,7 +84,6 @@ func TestPersonalLoginPromptsForDefaultOrganization(t *testing.T) {
 	}))
 	defer server.Close()
 	app, _, _ := testApp(server.URL)
-	app.CredentialFile = filepath.Join(t.TempDir(), "key")
 	app.Interactive = func() bool { return true }
 	app.SelectOrganization = func(_ context.Context, orgs []api.Organization) (string, error) {
 		if len(orgs) != 2 || orgs[0].Plan != "Starter" {
@@ -114,16 +109,14 @@ func TestOrganizationUseRejectsUnavailableOrganizationWithoutChangingDefault(t *
 	defer server.Close()
 	app, _, _ := testApp(server.URL)
 	setEnvironmentKey(app, "", false)
-	app.CredentialFile = filepath.Join(t.TempDir(), "key")
 	if err := app.saveCredential("ho_user"); err != nil {
 		t.Fatal(err)
 	}
 	if err := app.saveDefaultOrganization("ho_user", "org_a"); err != nil {
 		t.Fatal(err)
 	}
-	credentialPath := app.CredentialFile
 	cmd := app.Command()
-	cmd.SetArgs([]string{"org", "use", "unavailable", "--credential-file", credentialPath})
+	cmd.SetArgs([]string{"org", "use", "unavailable"})
 	if err := cmd.Execute(); err == nil {
 		t.Fatal("unknown organization accepted")
 	}

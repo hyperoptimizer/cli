@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -61,14 +60,13 @@ func TestListCommandsPaginateWithDefaultAndOverride(t *testing.T) {
 				defer server.Close()
 				app, out, _ := testApp(server.URL)
 				setEnvironmentKey(app, "", false)
-				app.CredentialFile = filepath.Join(t.TempDir(), "credential")
 				if err := app.saveCredential("ho_list_test"); err != nil {
 					t.Fatal(err)
 				}
 				if err := app.saveDefaultOrganization("ho_list_test", "org_a"); err != nil {
 					t.Fatal(err)
 				}
-				args := []string{kind, "list", "--credential-file", app.CredentialFile, "--output", "jsonl"}
+				args := []string{kind, "list", "--output", "jsonl"}
 				if override != "" {
 					args = append(args, "--org", override)
 				}
