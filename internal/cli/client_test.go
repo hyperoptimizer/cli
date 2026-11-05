@@ -65,7 +65,7 @@ func TestUserAgentIncludesLowercaseVersionAndSystem(t *testing.T) {
 	if _, err := client.Identity(authContext(context.Background(), "test")); err != nil {
 		t.Fatal(err)
 	}
-	if want := "hpo/1.2.3-rc1/" + runtime.GOOS; userAgent != want {
+	if want := "hyperoptimizer-cli-golang/1.2.3-rc1/" + runtime.GOOS; userAgent != want {
 		t.Fatalf("User-Agent = %q; want %q", userAgent, want)
 	}
 }

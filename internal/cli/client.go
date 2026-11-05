@@ -44,7 +44,7 @@ func newClient(endpoint string) (*api.Client, error) {
 		return nil, failure(2, "Use a GraphQL origin or an endpoint ending in /graphql")
 	}
 	httpClient := &http.Client{Timeout: 45 * time.Second, Transport: http.DefaultTransport, CheckRedirect: func(_ *http.Request, _ []*http.Request) error { return http.ErrUseLastResponse }}
-	return api.New(u.String(), httpClient, strings.ToLower("hpo/"+Version+"/"+runtime.GOOS)), nil
+	return api.New(u.String(), httpClient, strings.ToLower("hyperoptimizer-cli-golang/"+Version+"/"+runtime.GOOS)), nil
 }
 func authContext(ctx context.Context, key string) context.Context { return api.WithToken(ctx, key) }
 
