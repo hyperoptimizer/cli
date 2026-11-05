@@ -1,3 +1,5 @@
+![HyperOptimizer — Command-line interface](.github/assets/readme-header.png)
+
 # HyperOptimizer CLI
 
 [![CI](https://github.com/hyperoptimizer/cli/actions/workflows/ci.yml/badge.svg)](https://github.com/hyperoptimizer/cli/actions/workflows/ci.yml)
