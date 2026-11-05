@@ -1,0 +1,48 @@
+algorithm = "random"
+maxTrialCount = 10
+parallelTrialCount = 1
+maxFailedTrialCount = 3
+maxRuntimeSecondsPerTrial = 60
+machineSizeId = "nano"
+region = "eu-west"
+useCustomDockerImage = false
+fixedArgs = []
+requiredEnv = []
+reportingMode = "stdout"
+
+[build]
+context = "."
+dockerfile = "Dockerfile"
+repository = "training"
+platform = "linux/amd64"
+
+[[parameters]]
+name = "batch_size"
+slug = "batch-size"
+type = "categorical"
+values = ["16", "32", "64"]
+
+[[parameters]]
+name = "dropout"
+slug = "dropout"
+type = "double"
+min = 0
+max = 0.5
+
+[[parameters]]
+name = "learning_rate"
+slug = "learning-rate"
+type = "double"
+min = 0.0001
+max = 0.1
+log = true
+
+[[objectives]]
+name = "accuracy"
+type = "maximize"
+
+[[objectives]]
+name = "latency"
+type = "minimize"
+
+[metricPolicies]

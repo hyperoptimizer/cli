@@ -1,0 +1,1020 @@
+[
+  {
+    "name": "portable",
+    "semantic": true,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n"
+  },
+  {
+    "name": "project",
+    "semantic": true,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": [],
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile",
+        "platform": "linux/amd64",
+        "repository": "training"
+      }
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n\n[build]\ncontext = \".\"\ndockerfile = \"Dockerfile\"\nplatform = \"linux/amd64\"\nrepository = \"training\"\n"
+  },
+  {
+    "name": "obsolete-version",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": [],
+      "schemaVersion": 99
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\nschemaVersion = 99\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n"
+  },
+  {
+    "name": "unsupported-region",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "us-east",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"us-east\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n"
+  },
+  {
+    "name": "unknown-root",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": [],
+      "typo": 1
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\ntypo = 1\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n"
+  },
+  {
+    "name": "secret-value",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": [],
+      "envVars": [
+        {
+          "name": "TOKEN",
+          "value": "never-export"
+        }
+      ]
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n\n[[envVars]]\nname = \"TOKEN\"\nvalue = \"never-export\"\n"
+  },
+  {
+    "name": "invalid-range",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.00001,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.00001\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n"
+  },
+  {
+    "name": "duplicate-objective",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "latency",
+          "type": "minimize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n"
+  },
+  {
+    "name": "duplicate-slug",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "second",
+          "slug": "learning-rate",
+          "type": "double"
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"second\"\nslug = \"learning-rate\"\ntype = \"double\"\n"
+  },
+  {
+    "name": "missing-bounds",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "name": "x",
+          "slug": "x",
+          "type": "double"
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nname = \"x\"\nslug = \"x\"\ntype = \"double\"\n"
+  },
+  {
+    "name": "fractional-integer",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "max": 10,
+          "min": 1.5,
+          "name": "x",
+          "slug": "x",
+          "type": "int"
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nmax = 10\nmin = 1.5\nname = \"x\"\nslug = \"x\"\ntype = \"int\"\n"
+  },
+  {
+    "name": "fractional-integer-step",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "max": 10,
+          "min": 1,
+          "name": "x",
+          "slug": "x",
+          "step": 0.5,
+          "type": "int"
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nmax = 10\nmin = 1\nname = \"x\"\nslug = \"x\"\nstep = 0.5\ntype = \"int\"\n"
+  },
+  {
+    "name": "nonpositive-log",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 10,
+          "min": 0,
+          "name": "x",
+          "slug": "x",
+          "type": "double"
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 10\nmin = 0\nname = \"x\"\nslug = \"x\"\ntype = \"double\"\n"
+  },
+  {
+    "name": "float-log-step",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 10,
+          "min": 1,
+          "name": "x",
+          "slug": "x",
+          "step": 1,
+          "type": "double"
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 10\nmin = 1\nname = \"x\"\nslug = \"x\"\nstep = 1\ntype = \"double\"\n"
+  },
+  {
+    "name": "integer-log-step",
+    "semantic": false,
+    "structural": true,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 10,
+          "min": 1,
+          "name": "x",
+          "slug": "x",
+          "step": 2,
+          "type": "int"
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 10\nmin = 1\nname = \"x\"\nslug = \"x\"\nstep = 2\ntype = \"int\"\n"
+  },
+  {
+    "name": "unknown-parameter-field",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double",
+          "logarithmic": true
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\nlogarithmic = true\n"
+  },
+  {
+    "name": "unknown-objective-field",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "loss",
+          "type": "minimize",
+          "typo": true
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"loss\"\ntype = \"minimize\"\ntypo = true\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n"
+  },
+  {
+    "name": "unknown-condition-field",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "conditions": [
+            {
+              "metric": "loss",
+              "op": "<=",
+              "typo": true,
+              "value": 1
+            }
+          ],
+          "name": "loss",
+          "type": "minimize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": []
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"loss\"\ntype = \"minimize\"\n\n[[objectives.conditions]]\nmetric = \"loss\"\nop = \"<=\"\ntypo = true\nvalue = 1\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n"
+  },
+  {
+    "name": "unknown-sampler-field",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": [],
+      "samplerConfig": {
+        "multivariat": true
+      }
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n\n[samplerConfig]\nmultivariat = true\n"
+  },
+  {
+    "name": "unknown-image-field",
+    "semantic": false,
+    "structural": false,
+    "value": {
+      "algorithm": "random",
+      "fixedArgs": [],
+      "machineSizeId": "nano",
+      "maxFailedTrialCount": 3,
+      "maxRuntimeSecondsPerTrial": 60,
+      "maxTrialCount": 10,
+      "metricPolicies": {},
+      "objectives": [
+        {
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 1,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "16",
+            "32",
+            "64"
+          ]
+        }
+      ],
+      "region": "eu-west",
+      "reportingMode": "stdout",
+      "useCustomDockerImage": false,
+      "requiredEnv": [],
+      "dockerImage": {
+        "image": "training",
+        "registry": "example.com",
+        "tag": "v1",
+        "typo": true
+      }
+    },
+    "toml": "algorithm = \"random\"\nfixedArgs = []\nmachineSizeId = \"nano\"\nmaxFailedTrialCount = 3\nmaxRuntimeSecondsPerTrial = 60\nmaxTrialCount = 10\nparallelTrialCount = 1\nregion = \"eu-west\"\nreportingMode = \"stdout\"\nuseCustomDockerImage = false\nrequiredEnv = []\n\n[metricPolicies]\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"16\", \"32\", \"64\" ]\n\n[dockerImage]\nimage = \"training\"\nregistry = \"example.com\"\ntag = \"v1\"\ntypo = true\n"
+  }
+]

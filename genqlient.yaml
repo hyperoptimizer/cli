@@ -1,0 +1,32 @@
+schema: schema.graphql
+operations: internal/graphql/operations.graphql
+generated: internal/graphql/generated.go
+package: graphql
+optional: pointer
+bindings:
+  ULID:
+    type: string
+  JSON:
+    type: encoding/json.RawMessage
+  DateTimeISO:
+    type: time.Time
+  timestamptz:
+    type: time.Time
+  bigint:
+    type: string
+  float8:
+    type: string
+  numeric:
+    type: string
+  optimization_status:
+    type: string
+  experiment_kind:
+    type: string
+  optimization_desired_status:
+    type: string
+  run_status:
+    type: string
+  finalization_state:
+    type: string
+  metric_aggregation:
+    type: string

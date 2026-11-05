@@ -1,0 +1,124 @@
+[
+  {
+    "expected": "algorithm = \"random\"\nmaxTrialCount = 50\nparallelTrialCount = 4\nfixedArgs = [\"--z\", \"last\", \"--a\", \"first\"]\n\n[target]\nprojectId = \"01HV2T00010000000000000001\"\n\n[build]\ncontext = \".\"\ndockerfile = \"Dockerfile\"\nrepository = \"training\"\nplatform = \"linux/amd64\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [\"64\", \"16\", \"32\"]\n\n[[parameters]]\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\nmin = 0\nmax = 0.5\n\n[[parameters]]\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\nmin = 0.0001\nmax = 0.1\nlog = true\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives.conditions]]\nmetric = \"accuracy\"\nop = \">=\"\nvalue = 0.9\n\n[[objectives.conditions]]\nmetric = \"cost\"\nop = \"<=\"\nvalue = 2\n",
+    "input": "algorithm = \"random\"\nfixedArgs = [ \"--z\", \"last\", \"--a\", \"first\" ]\nmaxTrialCount = 50\nparallelTrialCount = 4\n\n[build]\ncontext = \".\"\ndockerfile = \"Dockerfile\"\nplatform = \"linux/amd64\"\nrepository = \"training\"\n\n[[objectives]]\nname = \"latency\"\ntype = \"minimize\"\n\n[[objectives.conditions]]\nmetric = \"accuracy\"\nop = \">=\"\nvalue = 0.9\n\n[[objectives.conditions]]\nmetric = \"cost\"\nop = \"<=\"\nvalue = 2\n\n[[objectives]]\nname = \"accuracy\"\ntype = \"maximize\"\n\n[[parameters]]\nlog = true\nmax = 0.1\nmin = 0.0001\nname = \"learning_rate\"\nslug = \"learning-rate\"\ntype = \"double\"\n\n[[parameters]]\nmax = 0.5\nmin = 0\nname = \"dropout\"\nslug = \"dropout\"\ntype = \"double\"\n\n[[parameters]]\nname = \"batch_size\"\nslug = \"batch-size\"\ntype = \"categorical\"\nvalues = [ \"64\", \"16\", \"32\" ]\n\n[target]\nprojectId = \"01HV2T00010000000000000001\"\n",
+    "name": "canonical-1",
+    "value": {
+      "algorithm": "random",
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile",
+        "platform": "linux/amd64",
+        "repository": "training"
+      },
+      "fixedArgs": [
+        "--z",
+        "last",
+        "--a",
+        "first"
+      ],
+      "maxTrialCount": 50,
+      "objectives": [
+        {
+          "conditions": [
+            {
+              "metric": "accuracy",
+              "op": ">=",
+              "value": 0.9
+            },
+            {
+              "metric": "cost",
+              "op": "<=",
+              "value": 2
+            }
+          ],
+          "name": "latency",
+          "type": "minimize"
+        },
+        {
+          "name": "accuracy",
+          "type": "maximize"
+        }
+      ],
+      "parallelTrialCount": 4,
+      "parameters": [
+        {
+          "log": true,
+          "max": 0.1,
+          "min": 0.0001,
+          "name": "learning_rate",
+          "slug": "learning-rate",
+          "type": "double"
+        },
+        {
+          "max": 0.5,
+          "min": 0,
+          "name": "dropout",
+          "slug": "dropout",
+          "type": "double"
+        },
+        {
+          "name": "batch_size",
+          "slug": "batch-size",
+          "type": "categorical",
+          "values": [
+            "64",
+            "16",
+            "32"
+          ]
+        }
+      ],
+      "target": {
+        "projectId": "01HV2T00010000000000000001"
+      }
+    }
+  },
+  {
+    "expected": "algorithm = \"random\"\nparameters = []\n\n[samplerConfig]\nseed = 42\n\n[baselineMetrics]\nloss = 0.5\n\n[[objectives]]\nname = \"loss\"\ntype = \"minimize\"\n",
+    "input": "algorithm = \"random\"\nparameters = []\n\n[baselineMetrics]\nloss = 0.5\n\n[[objectives]]\nname = \"loss\"\ntype = \"minimize\"\n\n[samplerConfig]\nseed = 42\n",
+    "name": "canonical-2",
+    "value": {
+      "algorithm": "random",
+      "baselineMetrics": {
+        "loss": 0.5
+      },
+      "objectives": [
+        {
+          "name": "loss",
+          "type": "minimize"
+        }
+      ],
+      "parameters": [],
+      "samplerConfig": {
+        "seed": 42
+      }
+    }
+  },
+  {
+    "expected": "fixedArgs = [\"--message\", \"quotes \\\" and newline\\n café 🚀 \\u2028\", \"literal \\\\u2028 and \\\\u2029; control \\u007f\"]\n\n[samplerConfig]\nhuge = 100000000000000000000.0\nmixed = [{a = \"hello\", z = true}, 2, [\"b\", \"a\"]]\ntiny = 1e-8\n",
+    "input": "fixedArgs = [\"--message\", \"quotes \\\" and newline\\n café 🚀 \\u2028\", \"literal \\\\u2028 and \\\\u2029; control \\u007f\"]\n\n[samplerConfig]\nhuge=1e20\nmixed = [{a = \"hello\", z = true}, 2, [\"b\", \"a\"]]\ntiny = 1e-8\n",
+    "name": "canonical-3",
+    "value": {
+      "fixedArgs": [
+        "--message",
+        "quotes \" and newline\n café 🚀  ",
+        "literal \\u2028 and \\u2029; control "
+      ],
+      "samplerConfig": {
+        "huge": 100000000000000000000,
+        "mixed": [
+          {
+            "a": "hello",
+            "z": true
+          },
+          2,
+          [
+            "b",
+            "a"
+          ]
+        ],
+        "tiny": 1e-8
+      }
+    }
+  }
+]

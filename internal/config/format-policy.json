@@ -1,0 +1,69 @@
+{
+  "fields": {
+    "": [
+      "algorithm",
+      "maxTrialCount",
+      "parallelTrialCount",
+      "maxFailedTrialCount",
+      "maxRuntimeSecondsPerTrial",
+      "machineSizeId",
+      "region",
+      "useCustomDockerImage",
+      "commandTemplate",
+      "fixedArgs",
+      "requiredEnv",
+      "target",
+      "build",
+      "dockerImage",
+      "samplerConfig",
+      "baselineMetrics",
+      "parameters",
+      "objectives"
+    ],
+    "build": [
+      "context",
+      "dockerfile",
+      "repository",
+      "platform"
+    ],
+    "dockerImage": [
+      "registry",
+      "image",
+      "tag",
+      "digest"
+    ],
+    "objectives": [
+      "name",
+      "type",
+      "goal",
+      "conditions"
+    ],
+    "objectives.conditions": [
+      "metric",
+      "op",
+      "value"
+    ],
+    "parameters": [
+      "name",
+      "slug",
+      "type",
+      "min",
+      "max",
+      "step",
+      "log",
+      "values"
+    ],
+    "target": [
+      "projectId"
+    ]
+  },
+  "namedArrays": {
+    "objectives": [
+      "name"
+    ],
+    "parameters": [
+      "name",
+      "slug"
+    ]
+  }
+}

@@ -1,0 +1,363 @@
+{
+  "type": "object",
+  "properties": {
+    "algorithm": {
+      "type": "string",
+      "enum": [
+        "random",
+        "grid",
+        "bayesian",
+        "hyperband",
+        "cma-es",
+        "sobol"
+      ]
+    },
+    "baselineMetrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      },
+      "propertyNames": {
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[a-zA-Z0-9._-]+(?:\\/[a-zA-Z0-9._-]+)*$"
+      }
+    },
+    "commandTemplate": {
+      "type": "string",
+      "maxLength": 8000
+    },
+    "dockerImage": {
+      "type": "object",
+      "properties": {
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "image": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "pullSecretName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "registry": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "tag": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "image",
+        "registry",
+        "tag"
+      ],
+      "additionalProperties": false
+    },
+    "fixedArgs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024
+      },
+      "maxItems": 64,
+      "default": []
+    },
+    "machineSizeId": {
+      "type": "string",
+      "enum": [
+        "nano",
+        "small",
+        "medium",
+        "large",
+        "xl"
+      ],
+      "default": "nano"
+    },
+    "maxFailedTrialCount": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 3
+    },
+    "maxRuntimeSecondsPerTrial": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 60
+    },
+    "maxTrialCount": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 10
+    },
+    "metricPolicies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "last",
+          "min",
+          "max",
+          "mean",
+          "explicit"
+        ]
+      },
+      "propertyNames": {
+        "minLength": 1,
+        "maxLength": 512,
+        "pattern": "^[A-Za-z0-9._-]+(?:\\/[A-Za-z0-9._-]+)*$"
+      },
+      "default": {}
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "metric": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[a-zA-Z0-9._-]+(?:\\/[a-zA-Z0-9._-]+)*$"
+                },
+                "op": {
+                  "type": "string",
+                  "enum": [
+                    ">=",
+                    "<="
+                  ]
+                },
+                "value": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "metric",
+                "op",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "goal": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9._-]+(?:\\/[a-zA-Z0-9._-]+)*$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "minimize",
+              "maximize"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 64
+    },
+    "parallelTrialCount": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "log": {
+            "type": "boolean"
+          },
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9._-]+$"
+          },
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-zA-Z0-9._-]+(?:\\/[a-zA-Z0-9._-]+)*$"
+          },
+          "step": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "double",
+              "int",
+              "categorical"
+            ]
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "slug",
+          "type"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 128
+    },
+    "region": {
+      "type": "string",
+      "const": "eu-west",
+      "default": "eu-west"
+    },
+    "reportingMode": {
+      "type": "string",
+      "enum": [
+        "stdout",
+        "sdk"
+      ],
+      "default": "stdout"
+    },
+    "samplerConfig": {
+      "type": "object",
+      "properties": {
+        "constant_liar": {
+          "type": "boolean"
+        },
+        "group": {
+          "type": "boolean"
+        },
+        "multivariate": {
+          "type": "boolean"
+        },
+        "n_startup_trials": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "popsize": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "restart_strategy": {
+          "type": "string",
+          "enum": [
+            "ipop",
+            "bipop"
+          ]
+        },
+        "scramble": {
+          "type": "boolean"
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "sigma0": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "useCustomDockerImage": {
+      "type": "boolean",
+      "default": false
+    },
+    "requiredEnv": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+      },
+      "maxItems": 32,
+      "default": []
+    },
+    "build": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "string",
+          "minLength": 1,
+          "default": "."
+        },
+        "dockerfile": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Dockerfile"
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "linux/amd64",
+            "linux/arm64"
+          ],
+          "default": "linux/amd64"
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*(?:\\/[a-z0-9]+(?:[._-][a-z0-9]+)*)*$"
+        }
+      },
+      "required": [
+        "repository"
+      ],
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "string",
+          "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+        }
+      },
+      "required": [
+        "projectId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "algorithm",
+    "objectives",
+    "parameters"
+  ],
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

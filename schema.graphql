@@ -1,0 +1,5375 @@
+directive @oneOf on INPUT_OBJECT
+
+"""Input constraints enforced per request by the validation plugin."""
+directive @constraint(minLength: Int, maxLength: Int, min: Float, max: Float, minItems: Int, maxItems: Int, pattern: String) on INPUT_FIELD_DEFINITION
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+"""
+Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
+"""
+input Boolean_comparison_exp {
+  _eq: Boolean
+  _gt: Boolean
+  _gte: Boolean
+  _in: [Boolean!]
+  _is_null: Boolean
+  _lt: Boolean
+  _lte: Boolean
+  _neq: Boolean
+  _nin: [Boolean!]
+}
+
+type CliConfiguration {
+  configuration: JSON!
+  warnings: [String!]!
+}
+
+input CliConfigurationInput {
+  projectId: ULID!
+  toml: String! @constraint(maxLength: 100000)
+  checkImage: Boolean! = false
+}
+
+type CliIdentity {
+  kind: CredentialKind!
+  ownerUserId: String
+  expiresAt: String
+  keyId: ULID!
+  organizationId: String
+  organizationName: String
+  organizations: [CliOrganization!]!
+  scopes: [String!]!
+}
+
+type CliLoginAttempt {
+  deviceCode: String!
+  userCode: String!
+  verificationUri: String!
+  expiresIn: Int!
+  interval: Int!
+}
+
+type CliLoginPoll {
+  status: CliLoginStatus!
+  apiKey: String
+}
+
+input CliLoginPollInput {
+  deviceCode: String! @constraint(pattern: "^[A-Za-z0-9_-]{43}$")
+}
+
+enum CliLoginStatus {
+  pending
+  approved
+  denied
+  expired
+  slow_down
+}
+
+type CliOrganization {
+  id: String!
+  slug: String
+  name: String!
+  plan: String!
+  subscriptionStatus: String!
+}
+
+type CliRegistryCredential {
+  registryHost: String!
+  projectName: String!
+  username: String!
+  password: String!
+  expiresAt: DateTimeISO!
+}
+
+input CreateProjectInput {
+  name: String! @constraint(minLength: 1, maxLength: 255)
+  description: String @constraint(maxLength: 2000)
+}
+
+type CreatedExperiment {
+  dashboardUrl: String!
+  id: ULID!
+  projectId: ULID!
+  name: String!
+}
+
+"""The secret is returned exactly once. Only its hash is retained."""
+enum CredentialKind {
+  organization_key
+  personal_cli
+}
+
+"""ISO-8601 timestamp validated and parsed before command execution."""
+scalar DateTimeISO
+
+input ExperimentCommandInput {
+  id: ULID!
+  projectId: ULID!
+  force: Boolean = false
+}
+
+type ExperimentIntent {
+  id: ULID!
+  desiredStatus: String!
+  success: Boolean!
+}
+
+enum InitialExperimentIntent {
+  running
+  paused
+}
+
+"""
+Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
+"""
+input Int_comparison_exp {
+  _eq: Int
+  _gt: Int
+  _gte: Int
+  _in: [Int!]
+  _is_null: Boolean
+  _lt: Int
+  _lte: Int
+  _neq: Int
+  _nin: [Int!]
+}
+
+"""Structured scalar values, metric snapshots and category choices."""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+input ManagedExperimentCreateInput {
+  projectId: ULID!
+  requestKey: ULID!
+  name: String! @constraint(minLength: 1, maxLength: 255)
+  description: String @constraint(maxLength: 2000)
+  desiredStatus: InitialExperimentIntent = running
+  """
+  Portable execution/search configuration. Its structured JSON and cross-field rules are validated by the command service.
+  """
+  configuration: JSON!
+  forkedFromExperimentId: ULID
+  forkSourceControlsRevision: Int @constraint(min: 0, max: 2147483646)
+}
+
+type Mutation {
+  createProject(input: CreateProjectInput!): WorkspaceProject!
+  createManagedExperiment(input: ManagedExperimentCreateInput!): CreatedExperiment!
+  stopExperiment(input: ExperimentCommandInput!): ExperimentIntent!
+  startCliLogin: CliLoginAttempt!
+  pollCliLogin(input: CliLoginPollInput!): CliLoginPoll!
+  createCliRegistryCredentials: CliRegistryCredential!
+}
+
+type Query {
+  """An array relationship"""
+  experiments(
+    """distinct select on columns"""
+    distinct_on: [experiments_select_column!]
+    """limit the number of rows returned"""
+    limit: Int
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+    """sort the rows by one or more columns"""
+    order_by: [experiments_order_by!]
+    """filter the rows returned"""
+    where: experiments_bool_exp
+  ): [experiments!]!
+  """
+  fetch data from the table: "projects"
+  """
+  projects(
+    """distinct select on columns"""
+    distinct_on: [projects_select_column!]
+    """limit the number of rows returned"""
+    limit: Int
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+    """sort the rows by one or more columns"""
+    order_by: [projects_order_by!]
+    """filter the rows returned"""
+    where: projects_bool_exp
+  ): [projects!]!
+  """An array relationship"""
+  runs(
+    """distinct select on columns"""
+    distinct_on: [runs_select_column!]
+    """limit the number of rows returned"""
+    limit: Int
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+    """sort the rows by one or more columns"""
+    order_by: [runs_order_by!]
+    """filter the rows returned"""
+    where: runs_bool_exp
+  ): [runs!]!
+  cliIdentity: CliIdentity!
+  validateCliConfiguration(input: CliConfigurationInput!): CliConfiguration!
+}
+
+"""
+Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
+"""
+input String_array_comparison_exp {
+  """is the array contained in the given array value"""
+  _contained_in: [String!]
+  """does the array contain the given value"""
+  _contains: [String!]
+  _eq: [String!]
+  _gt: [String!]
+  _gte: [String!]
+  _in: [[String!]!]
+  _is_null: Boolean
+  _lt: [String!]
+  _lte: [String!]
+  _neq: [String!]
+  _nin: [[String!]!]
+}
+
+"""
+Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
+"""
+input String_comparison_exp {
+  _eq: String
+  _gt: String
+  _gte: String
+  """does the column match the given case-insensitive pattern"""
+  _ilike: String
+  _in: [String!]
+  """
+  does the column match the given POSIX regular expression, case insensitive
+  """
+  _iregex: String
+  _is_null: Boolean
+  """does the column match the given pattern"""
+  _like: String
+  _lt: String
+  _lte: String
+  _neq: String
+  """does the column NOT match the given case-insensitive pattern"""
+  _nilike: String
+  _nin: [String!]
+  """
+  does the column NOT match the given POSIX regular expression, case insensitive
+  """
+  _niregex: String
+  """does the column NOT match the given pattern"""
+  _nlike: String
+  """
+  does the column NOT match the given POSIX regular expression, case sensitive
+  """
+  _nregex: String
+  """does the column NOT match the given SQL regular expression"""
+  _nsimilar: String
+  """
+  does the column match the given POSIX regular expression, case sensitive
+  """
+  _regex: String
+  """does the column match the given SQL regular expression"""
+  _similar: String
+}
+
+"""
+Reusable, case-insensitive product ID; normalized to uppercase by graphql-scalars.
+"""
+scalar ULID
+
+type WorkspaceProject {
+  id: ULID!
+  name: String!
+}
+
+scalar algorithm
+
+"""
+Boolean expression to compare columns of type "algorithm". All fields are combined with logical 'AND'.
+"""
+input algorithm_comparison_exp {
+  _eq: algorithm
+  _gt: algorithm
+  _gte: algorithm
+  _in: [algorithm!]
+  _is_null: Boolean
+  _lt: algorithm
+  _lte: algorithm
+  _neq: algorithm
+  _nin: [algorithm!]
+}
+
+scalar bigint
+
+"""
+Boolean expression to compare columns of type "bigint". All fields are combined with logical 'AND'.
+"""
+input bigint_comparison_exp {
+  _eq: bigint
+  _gt: bigint
+  _gte: bigint
+  _in: [bigint!]
+  _is_null: Boolean
+  _lt: bigint
+  _lte: bigint
+  _neq: bigint
+  _nin: [bigint!]
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_best_results". All fields are combined with a logical 'AND'.
+"""
+input experiment_best_results_bool_exp {
+  _and: [experiment_best_results_bool_exp!]
+  _not: experiment_best_results_bool_exp
+  _or: [experiment_best_results_bool_exp!]
+  direction: objective_direction_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  key: String_comparison_exp
+  number: Int_comparison_exp
+  organization_id: String_comparison_exp
+  project_id: String_comparison_exp
+  run: runs_bool_exp
+  run_id: String_comparison_exp
+  value: float8_comparison_exp
+}
+
+"""Ordering options when selecting data from "experiment_best_results"."""
+input experiment_best_results_order_by {
+  direction: order_by
+  experiment: experiments_order_by
+  experiment_id: order_by
+  key: order_by
+  number: order_by
+  organization_id: order_by
+  project_id: order_by
+  run: runs_order_by
+  run_id: order_by
+  value: order_by
+}
+
+input experiment_control_changes_aggregate_bool_exp {
+  count: experiment_control_changes_aggregate_bool_exp_count
+}
+
+input experiment_control_changes_aggregate_bool_exp_count {
+  arguments: [experiment_control_changes_select_column!]
+  distinct: Boolean
+  filter: experiment_control_changes_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "experiment_control_changes"
+"""
+input experiment_control_changes_aggregate_order_by {
+  avg: experiment_control_changes_avg_order_by
+  count: order_by
+  max: experiment_control_changes_max_order_by
+  min: experiment_control_changes_min_order_by
+  stddev: experiment_control_changes_stddev_order_by
+  stddev_pop: experiment_control_changes_stddev_pop_order_by
+  stddev_samp: experiment_control_changes_stddev_samp_order_by
+  sum: experiment_control_changes_sum_order_by
+  var_pop: experiment_control_changes_var_pop_order_by
+  var_samp: experiment_control_changes_var_samp_order_by
+  variance: experiment_control_changes_variance_order_by
+}
+
+"""
+order by avg() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_avg_order_by {
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_control_changes". All fields are combined with a logical 'AND'.
+"""
+input experiment_control_changes_bool_exp {
+  _and: [experiment_control_changes_bool_exp!]
+  _not: experiment_control_changes_bool_exp
+  _or: [experiment_control_changes_bool_exp!]
+  actor: users_bool_exp
+  actor_id: String_comparison_exp
+  created_at: timestamptz_comparison_exp
+  experiment_id: String_comparison_exp
+  id: String_comparison_exp
+  max_trial_count: Int_comparison_exp
+  optimization: optimization_experiments_bool_exp
+  parallel_trial_count: Int_comparison_exp
+  previous_max_trial_count: Int_comparison_exp
+  previous_parallel_trial_count: Int_comparison_exp
+  revision: Int_comparison_exp
+}
+
+"""
+order by max() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_max_order_by {
+  actor_id: order_by
+  created_at: order_by
+  experiment_id: order_by
+  id: order_by
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+order by min() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_min_order_by {
+  actor_id: order_by
+  created_at: order_by
+  experiment_id: order_by
+  id: order_by
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+select columns of table "experiment_control_changes"
+"""
+enum experiment_control_changes_select_column {
+  """column name"""
+  actor_id
+  """column name"""
+  created_at
+  """column name"""
+  experiment_id
+  """column name"""
+  id
+  """column name"""
+  max_trial_count
+  """column name"""
+  parallel_trial_count
+  """column name"""
+  previous_max_trial_count
+  """column name"""
+  previous_parallel_trial_count
+  """column name"""
+  revision
+}
+
+"""
+order by stddev() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_stddev_order_by {
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_stddev_pop_order_by {
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_stddev_samp_order_by {
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+order by sum() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_sum_order_by {
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+order by var_pop() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_var_pop_order_by {
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+order by var_samp() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_var_samp_order_by {
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+"""
+order by variance() on columns of table "experiment_control_changes"
+"""
+input experiment_control_changes_variance_order_by {
+  max_trial_count: order_by
+  parallel_trial_count: order_by
+  previous_max_trial_count: order_by
+  previous_parallel_trial_count: order_by
+  revision: order_by
+}
+
+input experiment_failure_reasons_aggregate_bool_exp {
+  count: experiment_failure_reasons_aggregate_bool_exp_count
+}
+
+input experiment_failure_reasons_aggregate_bool_exp_count {
+  arguments: [experiment_failure_reasons_select_column!]
+  distinct: Boolean
+  filter: experiment_failure_reasons_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_aggregate_order_by {
+  avg: experiment_failure_reasons_avg_order_by
+  count: order_by
+  max: experiment_failure_reasons_max_order_by
+  min: experiment_failure_reasons_min_order_by
+  stddev: experiment_failure_reasons_stddev_order_by
+  stddev_pop: experiment_failure_reasons_stddev_pop_order_by
+  stddev_samp: experiment_failure_reasons_stddev_samp_order_by
+  sum: experiment_failure_reasons_sum_order_by
+  var_pop: experiment_failure_reasons_var_pop_order_by
+  var_samp: experiment_failure_reasons_var_samp_order_by
+  variance: experiment_failure_reasons_variance_order_by
+}
+
+"""
+order by avg() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_avg_order_by {
+  count: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_failure_reasons". All fields are combined with a logical 'AND'.
+"""
+input experiment_failure_reasons_bool_exp {
+  _and: [experiment_failure_reasons_bool_exp!]
+  _not: experiment_failure_reasons_bool_exp
+  _or: [experiment_failure_reasons_bool_exp!]
+  count: bigint_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  organization_id: String_comparison_exp
+  reason: String_comparison_exp
+}
+
+"""
+order by max() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_max_order_by {
+  count: order_by
+  experiment_id: order_by
+  organization_id: order_by
+  reason: order_by
+}
+
+"""
+order by min() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_min_order_by {
+  count: order_by
+  experiment_id: order_by
+  organization_id: order_by
+  reason: order_by
+}
+
+"""
+select columns of table "experiment_failure_reasons"
+"""
+enum experiment_failure_reasons_select_column {
+  """column name"""
+  count
+  """column name"""
+  experiment_id
+  """column name"""
+  organization_id
+  """column name"""
+  reason
+}
+
+"""
+order by stddev() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_stddev_order_by {
+  count: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_stddev_pop_order_by {
+  count: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_stddev_samp_order_by {
+  count: order_by
+}
+
+"""
+order by sum() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_sum_order_by {
+  count: order_by
+}
+
+"""
+order by var_pop() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_var_pop_order_by {
+  count: order_by
+}
+
+"""
+order by var_samp() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_var_samp_order_by {
+  count: order_by
+}
+
+"""
+order by variance() on columns of table "experiment_failure_reasons"
+"""
+input experiment_failure_reasons_variance_order_by {
+  count: order_by
+}
+
+scalar experiment_kind
+
+"""
+Boolean expression to compare columns of type "experiment_kind". All fields are combined with logical 'AND'.
+"""
+input experiment_kind_comparison_exp {
+  _eq: experiment_kind
+  _gt: experiment_kind
+  _gte: experiment_kind
+  _in: [experiment_kind!]
+  _is_null: Boolean
+  _lt: experiment_kind
+  _lte: experiment_kind
+  _neq: experiment_kind
+  _nin: [experiment_kind!]
+}
+
+type experiment_metrics {
+  key: String!
+}
+
+input experiment_metrics_aggregate_bool_exp {
+  avg: experiment_metrics_aggregate_bool_exp_avg
+  corr: experiment_metrics_aggregate_bool_exp_corr
+  count: experiment_metrics_aggregate_bool_exp_count
+  covar_samp: experiment_metrics_aggregate_bool_exp_covar_samp
+  max: experiment_metrics_aggregate_bool_exp_max
+  min: experiment_metrics_aggregate_bool_exp_min
+  stddev_samp: experiment_metrics_aggregate_bool_exp_stddev_samp
+  sum: experiment_metrics_aggregate_bool_exp_sum
+  var_samp: experiment_metrics_aggregate_bool_exp_var_samp
+}
+
+input experiment_metrics_aggregate_bool_exp_avg {
+  arguments: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_avg_arguments_columns!
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_metrics_aggregate_bool_exp_corr {
+  arguments: experiment_metrics_aggregate_bool_exp_corr_arguments!
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_metrics_aggregate_bool_exp_corr_arguments {
+  X: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_corr_arguments_columns!
+  Y: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_corr_arguments_columns!
+}
+
+input experiment_metrics_aggregate_bool_exp_count {
+  arguments: [experiment_metrics_select_column!]
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+input experiment_metrics_aggregate_bool_exp_covar_samp {
+  arguments: experiment_metrics_aggregate_bool_exp_covar_samp_arguments!
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_metrics_aggregate_bool_exp_covar_samp_arguments {
+  X: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_covar_samp_arguments_columns!
+  Y: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_covar_samp_arguments_columns!
+}
+
+input experiment_metrics_aggregate_bool_exp_max {
+  arguments: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_max_arguments_columns!
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_metrics_aggregate_bool_exp_min {
+  arguments: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_min_arguments_columns!
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_metrics_aggregate_bool_exp_stddev_samp {
+  arguments: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_stddev_samp_arguments_columns!
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_metrics_aggregate_bool_exp_sum {
+  arguments: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_sum_arguments_columns!
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_metrics_aggregate_bool_exp_var_samp {
+  arguments: experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_var_samp_arguments_columns!
+  distinct: Boolean
+  filter: experiment_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+"""
+order by aggregate values of table "experiment_metrics"
+"""
+input experiment_metrics_aggregate_order_by {
+  avg: experiment_metrics_avg_order_by
+  count: order_by
+  max: experiment_metrics_max_order_by
+  min: experiment_metrics_min_order_by
+  stddev: experiment_metrics_stddev_order_by
+  stddev_pop: experiment_metrics_stddev_pop_order_by
+  stddev_samp: experiment_metrics_stddev_samp_order_by
+  sum: experiment_metrics_sum_order_by
+  var_pop: experiment_metrics_var_pop_order_by
+  var_samp: experiment_metrics_var_samp_order_by
+  variance: experiment_metrics_variance_order_by
+}
+
+"""
+order by avg() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_avg_order_by {
+  goal: order_by
+  objective_order: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_metrics". All fields are combined with a logical 'AND'.
+"""
+input experiment_metrics_bool_exp {
+  _and: [experiment_metrics_bool_exp!]
+  _not: experiment_metrics_bool_exp
+  _or: [experiment_metrics_bool_exp!]
+  conditions: jsonb_comparison_exp
+  default_aggregation: metric_aggregation_comparison_exp
+  direction: objective_direction_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  goal: float8_comparison_exp
+  key: String_comparison_exp
+  kind: metric_kind_comparison_exp
+  objective_order: Int_comparison_exp
+}
+
+"""
+order by max() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_max_order_by {
+  default_aggregation: order_by
+  direction: order_by
+  experiment_id: order_by
+  goal: order_by
+  key: order_by
+  kind: order_by
+  objective_order: order_by
+}
+
+"""
+order by min() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_min_order_by {
+  default_aggregation: order_by
+  direction: order_by
+  experiment_id: order_by
+  goal: order_by
+  key: order_by
+  kind: order_by
+  objective_order: order_by
+}
+
+"""Ordering options when selecting data from "experiment_metrics"."""
+input experiment_metrics_order_by {
+  conditions: order_by
+  default_aggregation: order_by
+  direction: order_by
+  experiment: experiments_order_by
+  experiment_id: order_by
+  goal: order_by
+  key: order_by
+  kind: order_by
+  objective_order: order_by
+}
+
+"""
+select columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column {
+  """column name"""
+  conditions
+  """column name"""
+  default_aggregation
+  """column name"""
+  direction
+  """column name"""
+  experiment_id
+  """column name"""
+  goal
+  """column name"""
+  key
+  """column name"""
+  kind
+  """column name"""
+  objective_order
+}
+
+"""
+select "experiment_metrics_aggregate_bool_exp_avg_arguments_columns" columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_avg_arguments_columns {
+  """column name"""
+  goal
+}
+
+"""
+select "experiment_metrics_aggregate_bool_exp_corr_arguments_columns" columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_corr_arguments_columns {
+  """column name"""
+  goal
+}
+
+"""
+select "experiment_metrics_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_covar_samp_arguments_columns {
+  """column name"""
+  goal
+}
+
+"""
+select "experiment_metrics_aggregate_bool_exp_max_arguments_columns" columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_max_arguments_columns {
+  """column name"""
+  goal
+}
+
+"""
+select "experiment_metrics_aggregate_bool_exp_min_arguments_columns" columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_min_arguments_columns {
+  """column name"""
+  goal
+}
+
+"""
+select "experiment_metrics_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_stddev_samp_arguments_columns {
+  """column name"""
+  goal
+}
+
+"""
+select "experiment_metrics_aggregate_bool_exp_sum_arguments_columns" columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_sum_arguments_columns {
+  """column name"""
+  goal
+}
+
+"""
+select "experiment_metrics_aggregate_bool_exp_var_samp_arguments_columns" columns of table "experiment_metrics"
+"""
+enum experiment_metrics_select_column_experiment_metrics_aggregate_bool_exp_var_samp_arguments_columns {
+  """column name"""
+  goal
+}
+
+"""
+order by stddev() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_stddev_order_by {
+  goal: order_by
+  objective_order: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_stddev_pop_order_by {
+  goal: order_by
+  objective_order: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_stddev_samp_order_by {
+  goal: order_by
+  objective_order: order_by
+}
+
+"""
+order by sum() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_sum_order_by {
+  goal: order_by
+  objective_order: order_by
+}
+
+"""
+order by var_pop() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_var_pop_order_by {
+  goal: order_by
+  objective_order: order_by
+}
+
+"""
+order by var_samp() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_var_samp_order_by {
+  goal: order_by
+  objective_order: order_by
+}
+
+"""
+order by variance() on columns of table "experiment_metrics"
+"""
+input experiment_metrics_variance_order_by {
+  goal: order_by
+  objective_order: order_by
+}
+
+input experiment_objective_results_aggregate_bool_exp {
+  avg: experiment_objective_results_aggregate_bool_exp_avg
+  corr: experiment_objective_results_aggregate_bool_exp_corr
+  count: experiment_objective_results_aggregate_bool_exp_count
+  covar_samp: experiment_objective_results_aggregate_bool_exp_covar_samp
+  max: experiment_objective_results_aggregate_bool_exp_max
+  min: experiment_objective_results_aggregate_bool_exp_min
+  stddev_samp: experiment_objective_results_aggregate_bool_exp_stddev_samp
+  sum: experiment_objective_results_aggregate_bool_exp_sum
+  var_samp: experiment_objective_results_aggregate_bool_exp_var_samp
+}
+
+input experiment_objective_results_aggregate_bool_exp_avg {
+  arguments: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_avg_arguments_columns!
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_objective_results_aggregate_bool_exp_corr {
+  arguments: experiment_objective_results_aggregate_bool_exp_corr_arguments!
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_objective_results_aggregate_bool_exp_corr_arguments {
+  X: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_corr_arguments_columns!
+  Y: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_corr_arguments_columns!
+}
+
+input experiment_objective_results_aggregate_bool_exp_count {
+  arguments: [experiment_objective_results_select_column!]
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+input experiment_objective_results_aggregate_bool_exp_covar_samp {
+  arguments: experiment_objective_results_aggregate_bool_exp_covar_samp_arguments!
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_objective_results_aggregate_bool_exp_covar_samp_arguments {
+  X: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_covar_samp_arguments_columns!
+  Y: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_covar_samp_arguments_columns!
+}
+
+input experiment_objective_results_aggregate_bool_exp_max {
+  arguments: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_max_arguments_columns!
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_objective_results_aggregate_bool_exp_min {
+  arguments: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_min_arguments_columns!
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_objective_results_aggregate_bool_exp_stddev_samp {
+  arguments: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_stddev_samp_arguments_columns!
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_objective_results_aggregate_bool_exp_sum {
+  arguments: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_sum_arguments_columns!
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_objective_results_aggregate_bool_exp_var_samp {
+  arguments: experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_var_samp_arguments_columns!
+  distinct: Boolean
+  filter: experiment_objective_results_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+"""
+order by aggregate values of table "experiment_objective_results"
+"""
+input experiment_objective_results_aggregate_order_by {
+  avg: experiment_objective_results_avg_order_by
+  count: order_by
+  max: experiment_objective_results_max_order_by
+  min: experiment_objective_results_min_order_by
+  stddev: experiment_objective_results_stddev_order_by
+  stddev_pop: experiment_objective_results_stddev_pop_order_by
+  stddev_samp: experiment_objective_results_stddev_samp_order_by
+  sum: experiment_objective_results_sum_order_by
+  var_pop: experiment_objective_results_var_pop_order_by
+  var_samp: experiment_objective_results_var_samp_order_by
+  variance: experiment_objective_results_variance_order_by
+}
+
+"""
+order by avg() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_avg_order_by {
+  value: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_objective_results". All fields are combined with a logical 'AND'.
+"""
+input experiment_objective_results_bool_exp {
+  _and: [experiment_objective_results_bool_exp!]
+  _not: experiment_objective_results_bool_exp
+  _or: [experiment_objective_results_bool_exp!]
+  direction: objective_direction_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  key: String_comparison_exp
+  organization_id: String_comparison_exp
+  project_id: String_comparison_exp
+  value: float8_comparison_exp
+}
+
+"""
+order by max() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_max_order_by {
+  direction: order_by
+  experiment_id: order_by
+  key: order_by
+  organization_id: order_by
+  project_id: order_by
+  value: order_by
+}
+
+"""
+order by min() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_min_order_by {
+  direction: order_by
+  experiment_id: order_by
+  key: order_by
+  organization_id: order_by
+  project_id: order_by
+  value: order_by
+}
+
+"""
+select columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column {
+  """column name"""
+  direction
+  """column name"""
+  experiment_id
+  """column name"""
+  key
+  """column name"""
+  organization_id
+  """column name"""
+  project_id
+  """column name"""
+  value
+}
+
+"""
+select "experiment_objective_results_aggregate_bool_exp_avg_arguments_columns" columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_avg_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_objective_results_aggregate_bool_exp_corr_arguments_columns" columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_corr_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_objective_results_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_covar_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_objective_results_aggregate_bool_exp_max_arguments_columns" columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_max_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_objective_results_aggregate_bool_exp_min_arguments_columns" columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_min_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_objective_results_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_stddev_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_objective_results_aggregate_bool_exp_sum_arguments_columns" columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_sum_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_objective_results_aggregate_bool_exp_var_samp_arguments_columns" columns of table "experiment_objective_results"
+"""
+enum experiment_objective_results_select_column_experiment_objective_results_aggregate_bool_exp_var_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+order by stddev() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_stddev_order_by {
+  value: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_stddev_pop_order_by {
+  value: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_stddev_samp_order_by {
+  value: order_by
+}
+
+"""
+order by sum() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_sum_order_by {
+  value: order_by
+}
+
+"""
+order by var_pop() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_var_pop_order_by {
+  value: order_by
+}
+
+"""
+order by var_samp() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_var_samp_order_by {
+  value: order_by
+}
+
+"""
+order by variance() on columns of table "experiment_objective_results"
+"""
+input experiment_objective_results_variance_order_by {
+  value: order_by
+}
+
+input experiment_parameters_aggregate_bool_exp {
+  avg: experiment_parameters_aggregate_bool_exp_avg
+  bool_and: experiment_parameters_aggregate_bool_exp_bool_and
+  bool_or: experiment_parameters_aggregate_bool_exp_bool_or
+  corr: experiment_parameters_aggregate_bool_exp_corr
+  count: experiment_parameters_aggregate_bool_exp_count
+  covar_samp: experiment_parameters_aggregate_bool_exp_covar_samp
+  max: experiment_parameters_aggregate_bool_exp_max
+  min: experiment_parameters_aggregate_bool_exp_min
+  stddev_samp: experiment_parameters_aggregate_bool_exp_stddev_samp
+  sum: experiment_parameters_aggregate_bool_exp_sum
+  var_samp: experiment_parameters_aggregate_bool_exp_var_samp
+}
+
+input experiment_parameters_aggregate_bool_exp_avg {
+  arguments: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_avg_arguments_columns!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_bool_and {
+  arguments: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_bool_and_arguments_columns!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_bool_or {
+  arguments: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_bool_or_arguments_columns!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_corr {
+  arguments: experiment_parameters_aggregate_bool_exp_corr_arguments!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_corr_arguments {
+  X: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_corr_arguments_columns!
+  Y: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_corr_arguments_columns!
+}
+
+input experiment_parameters_aggregate_bool_exp_count {
+  arguments: [experiment_parameters_select_column!]
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_covar_samp {
+  arguments: experiment_parameters_aggregate_bool_exp_covar_samp_arguments!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_covar_samp_arguments {
+  X: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_covar_samp_arguments_columns!
+  Y: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_covar_samp_arguments_columns!
+}
+
+input experiment_parameters_aggregate_bool_exp_max {
+  arguments: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_max_arguments_columns!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_min {
+  arguments: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_min_arguments_columns!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_stddev_samp {
+  arguments: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_stddev_samp_arguments_columns!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_sum {
+  arguments: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_sum_arguments_columns!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_parameters_aggregate_bool_exp_var_samp {
+  arguments: experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_var_samp_arguments_columns!
+  distinct: Boolean
+  filter: experiment_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+"""
+order by aggregate values of table "experiment_parameters"
+"""
+input experiment_parameters_aggregate_order_by {
+  avg: experiment_parameters_avg_order_by
+  count: order_by
+  max: experiment_parameters_max_order_by
+  min: experiment_parameters_min_order_by
+  stddev: experiment_parameters_stddev_order_by
+  stddev_pop: experiment_parameters_stddev_pop_order_by
+  stddev_samp: experiment_parameters_stddev_samp_order_by
+  sum: experiment_parameters_sum_order_by
+  var_pop: experiment_parameters_var_pop_order_by
+  var_samp: experiment_parameters_var_samp_order_by
+  variance: experiment_parameters_variance_order_by
+}
+
+"""
+order by avg() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_avg_order_by {
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_parameters". All fields are combined with a logical 'AND'.
+"""
+input experiment_parameters_bool_exp {
+  _and: [experiment_parameters_bool_exp!]
+  _not: experiment_parameters_bool_exp
+  _or: [experiment_parameters_bool_exp!]
+  choices: jsonb_comparison_exp
+  display_name: String_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  key: String_comparison_exp
+  kind: parameter_kind_comparison_exp
+  logarithmic: Boolean_comparison_exp
+  max_value: float8_comparison_exp
+  min_value: float8_comparison_exp
+  step_value: float8_comparison_exp
+}
+
+"""
+order by max() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_max_order_by {
+  display_name: order_by
+  experiment_id: order_by
+  key: order_by
+  kind: order_by
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+order by min() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_min_order_by {
+  display_name: order_by
+  experiment_id: order_by
+  key: order_by
+  kind: order_by
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+select columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column {
+  """column name"""
+  choices
+  """column name"""
+  display_name
+  """column name"""
+  experiment_id
+  """column name"""
+  key
+  """column name"""
+  kind
+  """column name"""
+  logarithmic
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_avg_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_avg_arguments_columns {
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_bool_and_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_bool_and_arguments_columns {
+  """column name"""
+  logarithmic
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_bool_or_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_bool_or_arguments_columns {
+  """column name"""
+  logarithmic
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_corr_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_corr_arguments_columns {
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_covar_samp_arguments_columns {
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_max_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_max_arguments_columns {
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_min_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_min_arguments_columns {
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_stddev_samp_arguments_columns {
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_sum_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_sum_arguments_columns {
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+select "experiment_parameters_aggregate_bool_exp_var_samp_arguments_columns" columns of table "experiment_parameters"
+"""
+enum experiment_parameters_select_column_experiment_parameters_aggregate_bool_exp_var_samp_arguments_columns {
+  """column name"""
+  max_value
+  """column name"""
+  min_value
+  """column name"""
+  step_value
+}
+
+"""
+order by stddev() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_stddev_order_by {
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_stddev_pop_order_by {
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_stddev_samp_order_by {
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+order by sum() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_sum_order_by {
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+order by var_pop() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_var_pop_order_by {
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+order by var_samp() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_var_samp_order_by {
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+"""
+order by variance() on columns of table "experiment_parameters"
+"""
+input experiment_parameters_variance_order_by {
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
+}
+
+input experiment_progress_points_aggregate_bool_exp {
+  avg: experiment_progress_points_aggregate_bool_exp_avg
+  corr: experiment_progress_points_aggregate_bool_exp_corr
+  count: experiment_progress_points_aggregate_bool_exp_count
+  covar_samp: experiment_progress_points_aggregate_bool_exp_covar_samp
+  max: experiment_progress_points_aggregate_bool_exp_max
+  min: experiment_progress_points_aggregate_bool_exp_min
+  stddev_samp: experiment_progress_points_aggregate_bool_exp_stddev_samp
+  sum: experiment_progress_points_aggregate_bool_exp_sum
+  var_samp: experiment_progress_points_aggregate_bool_exp_var_samp
+}
+
+input experiment_progress_points_aggregate_bool_exp_avg {
+  arguments: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_avg_arguments_columns!
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_progress_points_aggregate_bool_exp_corr {
+  arguments: experiment_progress_points_aggregate_bool_exp_corr_arguments!
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_progress_points_aggregate_bool_exp_corr_arguments {
+  X: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_corr_arguments_columns!
+  Y: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_corr_arguments_columns!
+}
+
+input experiment_progress_points_aggregate_bool_exp_count {
+  arguments: [experiment_progress_points_select_column!]
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+input experiment_progress_points_aggregate_bool_exp_covar_samp {
+  arguments: experiment_progress_points_aggregate_bool_exp_covar_samp_arguments!
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_progress_points_aggregate_bool_exp_covar_samp_arguments {
+  X: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_covar_samp_arguments_columns!
+  Y: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_covar_samp_arguments_columns!
+}
+
+input experiment_progress_points_aggregate_bool_exp_max {
+  arguments: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_max_arguments_columns!
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_progress_points_aggregate_bool_exp_min {
+  arguments: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_min_arguments_columns!
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_progress_points_aggregate_bool_exp_stddev_samp {
+  arguments: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_stddev_samp_arguments_columns!
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_progress_points_aggregate_bool_exp_sum {
+  arguments: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_sum_arguments_columns!
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input experiment_progress_points_aggregate_bool_exp_var_samp {
+  arguments: experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_var_samp_arguments_columns!
+  distinct: Boolean
+  filter: experiment_progress_points_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+"""
+order by aggregate values of table "experiment_progress_points"
+"""
+input experiment_progress_points_aggregate_order_by {
+  avg: experiment_progress_points_avg_order_by
+  count: order_by
+  max: experiment_progress_points_max_order_by
+  min: experiment_progress_points_min_order_by
+  stddev: experiment_progress_points_stddev_order_by
+  stddev_pop: experiment_progress_points_stddev_pop_order_by
+  stddev_samp: experiment_progress_points_stddev_samp_order_by
+  sum: experiment_progress_points_sum_order_by
+  var_pop: experiment_progress_points_var_pop_order_by
+  var_samp: experiment_progress_points_var_samp_order_by
+  variance: experiment_progress_points_variance_order_by
+}
+
+"""
+order by avg() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_avg_order_by {
+  bucket: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_progress_points". All fields are combined with a logical 'AND'.
+"""
+input experiment_progress_points_bool_exp {
+  _and: [experiment_progress_points_bool_exp!]
+  _not: experiment_progress_points_bool_exp
+  _or: [experiment_progress_points_bool_exp!]
+  bucket: Int_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  organization_id: String_comparison_exp
+  project_id: String_comparison_exp
+  source_count: bigint_comparison_exp
+  value: float8_comparison_exp
+}
+
+"""
+order by max() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_max_order_by {
+  bucket: order_by
+  experiment_id: order_by
+  organization_id: order_by
+  project_id: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+order by min() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_min_order_by {
+  bucket: order_by
+  experiment_id: order_by
+  organization_id: order_by
+  project_id: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+select columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column {
+  """column name"""
+  bucket
+  """column name"""
+  experiment_id
+  """column name"""
+  organization_id
+  """column name"""
+  project_id
+  """column name"""
+  source_count
+  """column name"""
+  value
+}
+
+"""
+select "experiment_progress_points_aggregate_bool_exp_avg_arguments_columns" columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_avg_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_progress_points_aggregate_bool_exp_corr_arguments_columns" columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_corr_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_progress_points_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_covar_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_progress_points_aggregate_bool_exp_max_arguments_columns" columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_max_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_progress_points_aggregate_bool_exp_min_arguments_columns" columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_min_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_progress_points_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_stddev_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_progress_points_aggregate_bool_exp_sum_arguments_columns" columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_sum_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "experiment_progress_points_aggregate_bool_exp_var_samp_arguments_columns" columns of table "experiment_progress_points"
+"""
+enum experiment_progress_points_select_column_experiment_progress_points_aggregate_bool_exp_var_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+order by stddev() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_stddev_order_by {
+  bucket: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_stddev_pop_order_by {
+  bucket: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_stddev_samp_order_by {
+  bucket: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+order by sum() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_sum_order_by {
+  bucket: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+order by var_pop() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_var_pop_order_by {
+  bucket: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+order by var_samp() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_var_samp_order_by {
+  bucket: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+order by variance() on columns of table "experiment_progress_points"
+"""
+input experiment_progress_points_variance_order_by {
+  bucket: order_by
+  source_count: order_by
+  value: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_runtime". All fields are combined with a logical 'AND'.
+"""
+input experiment_runtime_bool_exp {
+  _and: [experiment_runtime_bool_exp!]
+  _not: experiment_runtime_bool_exp
+  _or: [experiment_runtime_bool_exp!]
+  average_ms: float8_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  incomplete_count: bigint_comparison_exp
+  organization_id: String_comparison_exp
+  total_ms: float8_comparison_exp
+}
+
+"""Ordering options when selecting data from "experiment_runtime"."""
+input experiment_runtime_order_by {
+  average_ms: order_by
+  experiment: experiments_order_by
+  experiment_id: order_by
+  incomplete_count: order_by
+  organization_id: order_by
+  total_ms: order_by
+}
+
+scalar experiment_state
+
+"""
+Boolean expression to compare columns of type "experiment_state". All fields are combined with logical 'AND'.
+"""
+input experiment_state_comparison_exp {
+  _eq: experiment_state
+  _gt: experiment_state
+  _gte: experiment_state
+  _in: [experiment_state!]
+  _is_null: Boolean
+  _lt: experiment_state
+  _lte: experiment_state
+  _neq: experiment_state
+  _nin: [experiment_state!]
+}
+
+input experiment_status_counts_aggregate_bool_exp {
+  count: experiment_status_counts_aggregate_bool_exp_count
+}
+
+input experiment_status_counts_aggregate_bool_exp_count {
+  arguments: [experiment_status_counts_select_column!]
+  distinct: Boolean
+  filter: experiment_status_counts_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "experiment_status_counts"
+"""
+input experiment_status_counts_aggregate_order_by {
+  avg: experiment_status_counts_avg_order_by
+  count: order_by
+  max: experiment_status_counts_max_order_by
+  min: experiment_status_counts_min_order_by
+  stddev: experiment_status_counts_stddev_order_by
+  stddev_pop: experiment_status_counts_stddev_pop_order_by
+  stddev_samp: experiment_status_counts_stddev_samp_order_by
+  sum: experiment_status_counts_sum_order_by
+  var_pop: experiment_status_counts_var_pop_order_by
+  var_samp: experiment_status_counts_var_samp_order_by
+  variance: experiment_status_counts_variance_order_by
+}
+
+"""
+order by avg() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_avg_order_by {
+  count: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiment_status_counts". All fields are combined with a logical 'AND'.
+"""
+input experiment_status_counts_bool_exp {
+  _and: [experiment_status_counts_bool_exp!]
+  _not: experiment_status_counts_bool_exp
+  _or: [experiment_status_counts_bool_exp!]
+  count: bigint_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  organization_id: String_comparison_exp
+  status: run_status_comparison_exp
+}
+
+"""
+order by max() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_max_order_by {
+  count: order_by
+  experiment_id: order_by
+  organization_id: order_by
+  status: order_by
+}
+
+"""
+order by min() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_min_order_by {
+  count: order_by
+  experiment_id: order_by
+  organization_id: order_by
+  status: order_by
+}
+
+"""
+select columns of table "experiment_status_counts"
+"""
+enum experiment_status_counts_select_column {
+  """column name"""
+  count
+  """column name"""
+  experiment_id
+  """column name"""
+  organization_id
+  """column name"""
+  status
+}
+
+"""
+order by stddev() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_stddev_order_by {
+  count: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_stddev_pop_order_by {
+  count: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_stddev_samp_order_by {
+  count: order_by
+}
+
+"""
+order by sum() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_sum_order_by {
+  count: order_by
+}
+
+"""
+order by var_pop() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_var_pop_order_by {
+  count: order_by
+}
+
+"""
+order by var_samp() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_var_samp_order_by {
+  count: order_by
+}
+
+"""
+order by variance() on columns of table "experiment_status_counts"
+"""
+input experiment_status_counts_variance_order_by {
+  count: order_by
+}
+
+type experiments {
+  id: String!
+  kind: experiment_kind!
+  """An array relationship"""
+  metrics(
+    """distinct select on columns"""
+    distinct_on: [experiment_metrics_select_column!]
+    """limit the number of rows returned"""
+    limit: Int
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+    """sort the rows by one or more columns"""
+    order_by: [experiment_metrics_order_by!]
+    """filter the rows returned"""
+    where: experiment_metrics_bool_exp
+  ): [experiment_metrics!]!
+  name: String!
+  """An object relationship"""
+  optimization: optimization_experiments
+  project_id: String!
+}
+
+input experiments_aggregate_bool_exp {
+  count: experiments_aggregate_bool_exp_count
+}
+
+input experiments_aggregate_bool_exp_count {
+  arguments: [experiments_select_column!]
+  distinct: Boolean
+  filter: experiments_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "experiments"
+"""
+input experiments_aggregate_order_by {
+  count: order_by
+  max: experiments_max_order_by
+  min: experiments_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "experiments". All fields are combined with a logical 'AND'.
+"""
+input experiments_bool_exp {
+  _and: [experiments_bool_exp!]
+  _not: experiments_bool_exp
+  _or: [experiments_bool_exp!]
+  best_result: experiment_best_results_bool_exp
+  created_at: timestamptz_comparison_exp
+  created_by_id: String_comparison_exp
+  creator: users_bool_exp
+  deletion_requested_at: timestamptz_comparison_exp
+  description: String_comparison_exp
+  failure_reasons: experiment_failure_reasons_bool_exp
+  failure_reasons_aggregate: experiment_failure_reasons_aggregate_bool_exp
+  id: String_comparison_exp
+  kind: experiment_kind_comparison_exp
+  metrics: experiment_metrics_bool_exp
+  metrics_aggregate: experiment_metrics_aggregate_bool_exp
+  name: String_comparison_exp
+  objective_results: experiment_objective_results_bool_exp
+  objective_results_aggregate: experiment_objective_results_aggregate_bool_exp
+  optimization: optimization_experiments_bool_exp
+  organization_id: String_comparison_exp
+  parameters: experiment_parameters_bool_exp
+  parameters_aggregate: experiment_parameters_aggregate_bool_exp
+  progress_points: experiment_progress_points_bool_exp
+  progress_points_aggregate: experiment_progress_points_aggregate_bool_exp
+  project: projects_bool_exp
+  project_id: String_comparison_exp
+  runs: runs_bool_exp
+  runs_aggregate: runs_aggregate_bool_exp
+  runtime: experiment_runtime_bool_exp
+  state: experiment_state_comparison_exp
+  status_counts: experiment_status_counts_bool_exp
+  status_counts_aggregate: experiment_status_counts_aggregate_bool_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""
+order by max() on columns of table "experiments"
+"""
+input experiments_max_order_by {
+  created_at: order_by
+  created_by_id: order_by
+  deletion_requested_at: order_by
+  description: order_by
+  id: order_by
+  kind: order_by
+  name: order_by
+  organization_id: order_by
+  project_id: order_by
+  state: order_by
+  updated_at: order_by
+}
+
+"""
+order by min() on columns of table "experiments"
+"""
+input experiments_min_order_by {
+  created_at: order_by
+  created_by_id: order_by
+  deletion_requested_at: order_by
+  description: order_by
+  id: order_by
+  kind: order_by
+  name: order_by
+  organization_id: order_by
+  project_id: order_by
+  state: order_by
+  updated_at: order_by
+}
+
+"""Ordering options when selecting data from "experiments"."""
+input experiments_order_by {
+  best_result: experiment_best_results_order_by
+  created_at: order_by
+  created_by_id: order_by
+  creator: users_order_by
+  deletion_requested_at: order_by
+  description: order_by
+  failure_reasons_aggregate: experiment_failure_reasons_aggregate_order_by
+  id: order_by
+  kind: order_by
+  metrics_aggregate: experiment_metrics_aggregate_order_by
+  name: order_by
+  objective_results_aggregate: experiment_objective_results_aggregate_order_by
+  optimization: optimization_experiments_order_by
+  organization_id: order_by
+  parameters_aggregate: experiment_parameters_aggregate_order_by
+  progress_points_aggregate: experiment_progress_points_aggregate_order_by
+  project: projects_order_by
+  project_id: order_by
+  runs_aggregate: runs_aggregate_order_by
+  runtime: experiment_runtime_order_by
+  state: order_by
+  status_counts_aggregate: experiment_status_counts_aggregate_order_by
+  updated_at: order_by
+}
+
+"""
+select columns of table "experiments"
+"""
+enum experiments_select_column {
+  """column name"""
+  created_at
+  """column name"""
+  created_by_id
+  """column name"""
+  deletion_requested_at
+  """column name"""
+  description
+  """column name"""
+  id
+  """column name"""
+  kind
+  """column name"""
+  name
+  """column name"""
+  organization_id
+  """column name"""
+  project_id
+  """column name"""
+  state
+  """column name"""
+  updated_at
+}
+
+scalar failure_category
+
+"""
+Boolean expression to compare columns of type "failure_category". All fields are combined with logical 'AND'.
+"""
+input failure_category_comparison_exp {
+  _eq: failure_category
+  _gt: failure_category
+  _gte: failure_category
+  _in: [failure_category!]
+  _is_null: Boolean
+  _lt: failure_category
+  _lte: failure_category
+  _neq: failure_category
+  _nin: [failure_category!]
+}
+
+scalar finalization_state
+
+"""
+Boolean expression to compare columns of type "finalization_state". All fields are combined with logical 'AND'.
+"""
+input finalization_state_comparison_exp {
+  _eq: finalization_state
+  _gt: finalization_state
+  _gte: finalization_state
+  _in: [finalization_state!]
+  _is_null: Boolean
+  _lt: finalization_state
+  _lte: finalization_state
+  _neq: finalization_state
+  _nin: [finalization_state!]
+}
+
+scalar float8
+
+"""
+Boolean expression to compare columns of type "float8". All fields are combined with logical 'AND'.
+"""
+input float8_comparison_exp {
+  _eq: float8
+  _gt: float8
+  _gte: float8
+  _in: [float8!]
+  _is_null: Boolean
+  _lt: float8
+  _lte: float8
+  _neq: float8
+  _nin: [float8!]
+}
+
+scalar jsonb
+
+input jsonb_cast_exp {
+  String: String_comparison_exp
+}
+
+"""
+Boolean expression to compare columns of type "jsonb". All fields are combined with logical 'AND'.
+"""
+input jsonb_comparison_exp {
+  _cast: jsonb_cast_exp
+  """is the column contained in the given json value"""
+  _contained_in: jsonb
+  """does the column contain the given json value at the top level"""
+  _contains: jsonb
+  _eq: jsonb
+  _gt: jsonb
+  _gte: jsonb
+  """does the string exist as a top-level key in the column"""
+  _has_key: String
+  """do all of these strings exist as top-level keys in the column"""
+  _has_keys_all: [String!]
+  """do any of these strings exist as top-level keys in the column"""
+  _has_keys_any: [String!]
+  _in: [jsonb!]
+  _is_null: Boolean
+  """does the jsonpath return any item for the specified JSON value"""
+  _jsonb_path_exists: String
+  """
+  does the jsonpath predicate check return true for the specified JSON value
+  """
+  _jsonb_path_match: String
+  _lt: jsonb
+  _lte: jsonb
+  _neq: jsonb
+  _nin: [jsonb!]
+}
+
+scalar machine_size
+
+"""
+Boolean expression to compare columns of type "machine_size". All fields are combined with logical 'AND'.
+"""
+input machine_size_comparison_exp {
+  _eq: machine_size
+  _gt: machine_size
+  _gte: machine_size
+  _in: [machine_size!]
+  _is_null: Boolean
+  _lt: machine_size
+  _lte: machine_size
+  _neq: machine_size
+  _nin: [machine_size!]
+}
+
+scalar member_role
+
+"""
+Boolean expression to compare columns of type "member_role". All fields are combined with logical 'AND'.
+"""
+input member_role_comparison_exp {
+  _eq: member_role
+  _gt: member_role
+  _gte: member_role
+  _in: [member_role!]
+  _is_null: Boolean
+  _lt: member_role
+  _lte: member_role
+  _neq: member_role
+  _nin: [member_role!]
+}
+
+input memberships_aggregate_bool_exp {
+  count: memberships_aggregate_bool_exp_count
+}
+
+input memberships_aggregate_bool_exp_count {
+  arguments: [memberships_select_column!]
+  distinct: Boolean
+  filter: memberships_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "memberships"
+"""
+input memberships_aggregate_order_by {
+  count: order_by
+  max: memberships_max_order_by
+  min: memberships_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "memberships". All fields are combined with a logical 'AND'.
+"""
+input memberships_bool_exp {
+  _and: [memberships_bool_exp!]
+  _not: memberships_bool_exp
+  _or: [memberships_bool_exp!]
+  organization: organizations_bool_exp
+  organization_id: String_comparison_exp
+  role: member_role_comparison_exp
+  user_id: String_comparison_exp
+}
+
+"""
+order by max() on columns of table "memberships"
+"""
+input memberships_max_order_by {
+  organization_id: order_by
+  role: order_by
+  user_id: order_by
+}
+
+"""
+order by min() on columns of table "memberships"
+"""
+input memberships_min_order_by {
+  organization_id: order_by
+  role: order_by
+  user_id: order_by
+}
+
+"""
+select columns of table "memberships"
+"""
+enum memberships_select_column {
+  """column name"""
+  organization_id
+  """column name"""
+  role
+  """column name"""
+  user_id
+}
+
+scalar metric_aggregation
+
+"""
+Boolean expression to compare columns of type "metric_aggregation". All fields are combined with logical 'AND'.
+"""
+input metric_aggregation_comparison_exp {
+  _eq: metric_aggregation
+  _gt: metric_aggregation
+  _gte: metric_aggregation
+  _in: [metric_aggregation!]
+  _is_null: Boolean
+  _lt: metric_aggregation
+  _lte: metric_aggregation
+  _neq: metric_aggregation
+  _nin: [metric_aggregation!]
+}
+
+scalar metric_kind
+
+"""
+Boolean expression to compare columns of type "metric_kind". All fields are combined with logical 'AND'.
+"""
+input metric_kind_comparison_exp {
+  _eq: metric_kind
+  _gt: metric_kind
+  _gte: metric_kind
+  _in: [metric_kind!]
+  _is_null: Boolean
+  _lt: metric_kind
+  _lte: metric_kind
+  _neq: metric_kind
+  _nin: [metric_kind!]
+}
+
+scalar network_action
+
+"""
+Boolean expression to compare columns of type "network_action". All fields are combined with logical 'AND'.
+"""
+input network_action_comparison_exp {
+  _eq: network_action
+  _gt: network_action
+  _gte: network_action
+  _in: [network_action!]
+  _is_null: Boolean
+  _lt: network_action
+  _lte: network_action
+  _neq: network_action
+  _nin: [network_action!]
+}
+
+scalar network_request_status
+
+"""
+Boolean expression to compare columns of type "network_request_status". All fields are combined with logical 'AND'.
+"""
+input network_request_status_comparison_exp {
+  _eq: network_request_status
+  _gt: network_request_status
+  _gte: network_request_status
+  _in: [network_request_status!]
+  _is_null: Boolean
+  _lt: network_request_status
+  _lte: network_request_status
+  _neq: network_request_status
+  _nin: [network_request_status!]
+}
+
+input network_requests_aggregate_bool_exp {
+  count: network_requests_aggregate_bool_exp_count
+}
+
+input network_requests_aggregate_bool_exp_count {
+  arguments: [network_requests_select_column!]
+  distinct: Boolean
+  filter: network_requests_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "network_requests"
+"""
+input network_requests_aggregate_order_by {
+  count: order_by
+  max: network_requests_max_order_by
+  min: network_requests_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "network_requests". All fields are combined with a logical 'AND'.
+"""
+input network_requests_bool_exp {
+  _and: [network_requests_bool_exp!]
+  _not: network_requests_bool_exp
+  _or: [network_requests_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  hostname: String_comparison_exp
+  id: String_comparison_exp
+  organization: organizations_bool_exp
+  purpose: String_comparison_exp
+  reason: String_comparison_exp
+  reviewed_at: timestamptz_comparison_exp
+  status: network_request_status_comparison_exp
+}
+
+"""
+order by max() on columns of table "network_requests"
+"""
+input network_requests_max_order_by {
+  created_at: order_by
+  hostname: order_by
+  id: order_by
+  purpose: order_by
+  reason: order_by
+  reviewed_at: order_by
+  status: order_by
+}
+
+"""
+order by min() on columns of table "network_requests"
+"""
+input network_requests_min_order_by {
+  created_at: order_by
+  hostname: order_by
+  id: order_by
+  purpose: order_by
+  reason: order_by
+  reviewed_at: order_by
+  status: order_by
+}
+
+"""
+select columns of table "network_requests"
+"""
+enum network_requests_select_column {
+  """column name"""
+  created_at
+  """column name"""
+  hostname
+  """column name"""
+  id
+  """column name"""
+  purpose
+  """column name"""
+  reason
+  """column name"""
+  reviewed_at
+  """column name"""
+  status
+}
+
+scalar network_rule_source
+
+"""
+Boolean expression to compare columns of type "network_rule_source". All fields are combined with logical 'AND'.
+"""
+input network_rule_source_comparison_exp {
+  _eq: network_rule_source
+  _gt: network_rule_source
+  _gte: network_rule_source
+  _in: [network_rule_source!]
+  _is_null: Boolean
+  _lt: network_rule_source
+  _lte: network_rule_source
+  _neq: network_rule_source
+  _nin: [network_rule_source!]
+}
+
+input network_rules_aggregate_bool_exp {
+  count: network_rules_aggregate_bool_exp_count
+}
+
+input network_rules_aggregate_bool_exp_count {
+  arguments: [network_rules_select_column!]
+  distinct: Boolean
+  filter: network_rules_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "network_rules"
+"""
+input network_rules_aggregate_order_by {
+  count: order_by
+  max: network_rules_max_order_by
+  min: network_rules_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "network_rules". All fields are combined with a logical 'AND'.
+"""
+input network_rules_bool_exp {
+  _and: [network_rules_bool_exp!]
+  _not: network_rules_bool_exp
+  _or: [network_rules_bool_exp!]
+  action: network_action_comparison_exp
+  created_at: timestamptz_comparison_exp
+  hostname: String_comparison_exp
+  id: String_comparison_exp
+  organization: organizations_bool_exp
+  organization_id: String_comparison_exp
+  reason: String_comparison_exp
+  scope_key: String_comparison_exp
+  source: network_rule_source_comparison_exp
+}
+
+"""
+order by max() on columns of table "network_rules"
+"""
+input network_rules_max_order_by {
+  action: order_by
+  created_at: order_by
+  hostname: order_by
+  id: order_by
+  organization_id: order_by
+  reason: order_by
+  scope_key: order_by
+  source: order_by
+}
+
+"""
+order by min() on columns of table "network_rules"
+"""
+input network_rules_min_order_by {
+  action: order_by
+  created_at: order_by
+  hostname: order_by
+  id: order_by
+  organization_id: order_by
+  reason: order_by
+  scope_key: order_by
+  source: order_by
+}
+
+"""
+select columns of table "network_rules"
+"""
+enum network_rules_select_column {
+  """column name"""
+  action
+  """column name"""
+  created_at
+  """column name"""
+  hostname
+  """column name"""
+  id
+  """column name"""
+  organization_id
+  """column name"""
+  reason
+  """column name"""
+  scope_key
+  """column name"""
+  source
+}
+
+scalar objective_direction
+
+"""
+Boolean expression to compare columns of type "objective_direction". All fields are combined with logical 'AND'.
+"""
+input objective_direction_comparison_exp {
+  _eq: objective_direction
+  _gt: objective_direction
+  _gte: objective_direction
+  _in: [objective_direction!]
+  _is_null: Boolean
+  _lt: objective_direction
+  _lte: objective_direction
+  _neq: objective_direction
+  _nin: [objective_direction!]
+}
+
+scalar optimization_desired_status
+
+"""
+Boolean expression to compare columns of type "optimization_desired_status". All fields are combined with logical 'AND'.
+"""
+input optimization_desired_status_comparison_exp {
+  _eq: optimization_desired_status
+  _gt: optimization_desired_status
+  _gte: optimization_desired_status
+  _in: [optimization_desired_status!]
+  _is_null: Boolean
+  _lt: optimization_desired_status
+  _lte: optimization_desired_status
+  _neq: optimization_desired_status
+  _nin: [optimization_desired_status!]
+}
+
+type optimization_experiments {
+  desired_status: optimization_desired_status!
+  max_trial_count: Int!
+  status: optimization_status!
+}
+
+input optimization_experiments_aggregate_bool_exp {
+  bool_and: optimization_experiments_aggregate_bool_exp_bool_and
+  bool_or: optimization_experiments_aggregate_bool_exp_bool_or
+  count: optimization_experiments_aggregate_bool_exp_count
+}
+
+input optimization_experiments_aggregate_bool_exp_bool_and {
+  arguments: optimization_experiments_select_column_optimization_experiments_aggregate_bool_exp_bool_and_arguments_columns!
+  distinct: Boolean
+  filter: optimization_experiments_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input optimization_experiments_aggregate_bool_exp_bool_or {
+  arguments: optimization_experiments_select_column_optimization_experiments_aggregate_bool_exp_bool_or_arguments_columns!
+  distinct: Boolean
+  filter: optimization_experiments_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input optimization_experiments_aggregate_bool_exp_count {
+  arguments: [optimization_experiments_select_column!]
+  distinct: Boolean
+  filter: optimization_experiments_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "optimization_experiments"
+"""
+input optimization_experiments_aggregate_order_by {
+  avg: optimization_experiments_avg_order_by
+  count: order_by
+  max: optimization_experiments_max_order_by
+  min: optimization_experiments_min_order_by
+  stddev: optimization_experiments_stddev_order_by
+  stddev_pop: optimization_experiments_stddev_pop_order_by
+  stddev_samp: optimization_experiments_stddev_samp_order_by
+  sum: optimization_experiments_sum_order_by
+  var_pop: optimization_experiments_var_pop_order_by
+  var_samp: optimization_experiments_var_samp_order_by
+  variance: optimization_experiments_variance_order_by
+}
+
+"""
+order by avg() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_avg_order_by {
+  controls_revision: order_by
+  cpu_millicores: order_by
+  execution_revision: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "optimization_experiments". All fields are combined with a logical 'AND'.
+"""
+input optimization_experiments_bool_exp {
+  _and: [optimization_experiments_bool_exp!]
+  _not: optimization_experiments_bool_exp
+  _or: [optimization_experiments_bool_exp!]
+  algorithm: algorithm_comparison_exp
+  baseline_metrics: jsonb_comparison_exp
+  children: optimization_experiments_bool_exp
+  children_aggregate: optimization_experiments_aggregate_bool_exp
+  command_template: String_comparison_exp
+  control_history: experiment_control_changes_bool_exp
+  control_history_aggregate: experiment_control_changes_aggregate_bool_exp
+  controls_revision: Int_comparison_exp
+  cpu_millicores: Int_comparison_exp
+  desired_status: optimization_desired_status_comparison_exp
+  docker_image: jsonb_comparison_exp
+  execution_revision: Int_comparison_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  failure_reason: String_comparison_exp
+  fixed_args: String_array_comparison_exp
+  fork_source: jsonb_comparison_exp
+  initial_configuration_recorded: Boolean_comparison_exp
+  initial_max_trial_count: Int_comparison_exp
+  initial_parallel_trial_count: Int_comparison_exp
+  machine_size: machine_size_comparison_exp
+  max_failed_trial_count: Int_comparison_exp
+  max_runtime_seconds_per_trial: Int_comparison_exp
+  max_trial_count: Int_comparison_exp
+  memory_mb: Int_comparison_exp
+  parallel_trial_count: Int_comparison_exp
+  parent: optimization_experiments_bool_exp
+  parent_experiment_id: String_comparison_exp
+  pause_reason: String_comparison_exp
+  plan_revision: plan_revision_comparison_exp
+  project_config_metadata: jsonb_comparison_exp
+  region: String_comparison_exp
+  reporting_mode: reporting_mode_comparison_exp
+  required_env: jsonb_comparison_exp
+  sampler_config: jsonb_comparison_exp
+  status: optimization_status_comparison_exp
+  use_custom_docker_image: Boolean_comparison_exp
+}
+
+"""
+order by max() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_max_order_by {
+  algorithm: order_by
+  command_template: order_by
+  controls_revision: order_by
+  cpu_millicores: order_by
+  desired_status: order_by
+  execution_revision: order_by
+  experiment_id: order_by
+  failure_reason: order_by
+  fixed_args: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  machine_size: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+  parent_experiment_id: order_by
+  pause_reason: order_by
+  plan_revision: order_by
+  region: order_by
+  reporting_mode: order_by
+  status: order_by
+}
+
+"""
+order by min() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_min_order_by {
+  algorithm: order_by
+  command_template: order_by
+  controls_revision: order_by
+  cpu_millicores: order_by
+  desired_status: order_by
+  execution_revision: order_by
+  experiment_id: order_by
+  failure_reason: order_by
+  fixed_args: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  machine_size: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+  parent_experiment_id: order_by
+  pause_reason: order_by
+  plan_revision: order_by
+  region: order_by
+  reporting_mode: order_by
+  status: order_by
+}
+
+"""Ordering options when selecting data from "optimization_experiments"."""
+input optimization_experiments_order_by {
+  algorithm: order_by
+  baseline_metrics: order_by
+  children_aggregate: optimization_experiments_aggregate_order_by
+  command_template: order_by
+  control_history_aggregate: experiment_control_changes_aggregate_order_by
+  controls_revision: order_by
+  cpu_millicores: order_by
+  desired_status: order_by
+  docker_image: order_by
+  execution_revision: order_by
+  experiment: experiments_order_by
+  experiment_id: order_by
+  failure_reason: order_by
+  fixed_args: order_by
+  fork_source: order_by
+  initial_configuration_recorded: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  machine_size: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+  parent: optimization_experiments_order_by
+  parent_experiment_id: order_by
+  pause_reason: order_by
+  plan_revision: order_by
+  project_config_metadata: order_by
+  region: order_by
+  reporting_mode: order_by
+  required_env: order_by
+  sampler_config: order_by
+  status: order_by
+  use_custom_docker_image: order_by
+}
+
+"""
+select columns of table "optimization_experiments"
+"""
+enum optimization_experiments_select_column {
+  """column name"""
+  algorithm
+  """column name"""
+  baseline_metrics
+  """column name"""
+  command_template
+  """column name"""
+  controls_revision
+  """column name"""
+  cpu_millicores
+  """column name"""
+  desired_status
+  """column name"""
+  docker_image
+  """column name"""
+  execution_revision
+  """column name"""
+  experiment_id
+  """column name"""
+  failure_reason
+  """column name"""
+  fixed_args
+  """column name"""
+  fork_source
+  """column name"""
+  initial_configuration_recorded
+  """column name"""
+  initial_max_trial_count
+  """column name"""
+  initial_parallel_trial_count
+  """column name"""
+  machine_size
+  """column name"""
+  max_failed_trial_count
+  """column name"""
+  max_runtime_seconds_per_trial
+  """column name"""
+  max_trial_count
+  """column name"""
+  memory_mb
+  """column name"""
+  parallel_trial_count
+  """column name"""
+  parent_experiment_id
+  """column name"""
+  pause_reason
+  """column name"""
+  plan_revision
+  """column name"""
+  project_config_metadata
+  """column name"""
+  region
+  """column name"""
+  reporting_mode
+  """column name"""
+  sampler_config
+  """column name"""
+  status
+  """column name"""
+  use_custom_docker_image
+}
+
+"""
+select "optimization_experiments_aggregate_bool_exp_bool_and_arguments_columns" columns of table "optimization_experiments"
+"""
+enum optimization_experiments_select_column_optimization_experiments_aggregate_bool_exp_bool_and_arguments_columns {
+  """column name"""
+  initial_configuration_recorded
+  """column name"""
+  use_custom_docker_image
+}
+
+"""
+select "optimization_experiments_aggregate_bool_exp_bool_or_arguments_columns" columns of table "optimization_experiments"
+"""
+enum optimization_experiments_select_column_optimization_experiments_aggregate_bool_exp_bool_or_arguments_columns {
+  """column name"""
+  initial_configuration_recorded
+  """column name"""
+  use_custom_docker_image
+}
+
+"""
+order by stddev() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_stddev_order_by {
+  controls_revision: order_by
+  cpu_millicores: order_by
+  execution_revision: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_stddev_pop_order_by {
+  controls_revision: order_by
+  cpu_millicores: order_by
+  execution_revision: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_stddev_samp_order_by {
+  controls_revision: order_by
+  cpu_millicores: order_by
+  execution_revision: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+}
+
+"""
+order by sum() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_sum_order_by {
+  controls_revision: order_by
+  cpu_millicores: order_by
+  execution_revision: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+}
+
+"""
+order by var_pop() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_var_pop_order_by {
+  controls_revision: order_by
+  cpu_millicores: order_by
+  execution_revision: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+}
+
+"""
+order by var_samp() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_var_samp_order_by {
+  controls_revision: order_by
+  cpu_millicores: order_by
+  execution_revision: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+}
+
+"""
+order by variance() on columns of table "optimization_experiments"
+"""
+input optimization_experiments_variance_order_by {
+  controls_revision: order_by
+  cpu_millicores: order_by
+  execution_revision: order_by
+  initial_max_trial_count: order_by
+  initial_parallel_trial_count: order_by
+  max_failed_trial_count: order_by
+  max_runtime_seconds_per_trial: order_by
+  max_trial_count: order_by
+  memory_mb: order_by
+  parallel_trial_count: order_by
+}
+
+scalar optimization_status
+
+"""
+Boolean expression to compare columns of type "optimization_status". All fields are combined with logical 'AND'.
+"""
+input optimization_status_comparison_exp {
+  _eq: optimization_status
+  _gt: optimization_status
+  _gte: optimization_status
+  _in: [optimization_status!]
+  _is_null: Boolean
+  _lt: optimization_status
+  _lte: optimization_status
+  _neq: optimization_status
+  _nin: [optimization_status!]
+}
+
+type optimization_trials {
+  number: Int!
+  results_accepted_at: timestamptz
+}
+
+"""
+Boolean expression to filter rows from the table "optimization_trials". All fields are combined with a logical 'AND'.
+"""
+input optimization_trials_bool_exp {
+  _and: [optimization_trials_bool_exp!]
+  _not: optimization_trials_bool_exp
+  _or: [optimization_trials_bool_exp!]
+  admitted_at: timestamptz_comparison_exp
+  cancellation_reason: String_comparison_exp
+  cancellation_requested_at: timestamptz_comparison_exp
+  container_state: String_comparison_exp
+  desired_status: run_desired_status_comparison_exp
+  duration_seconds: bigint_comparison_exp
+  exit_code: Int_comparison_exp
+  failure_category: failure_category_comparison_exp
+  failure_message: String_comparison_exp
+  failure_reason: String_comparison_exp
+  k8s_job_name: String_comparison_exp
+  k8s_job_uid: String_comparison_exp
+  k8s_namespace: String_comparison_exp
+  kueue_workload_name: String_comparison_exp
+  logs: String_comparison_exp
+  machine_size: machine_size_comparison_exp
+  max_duration_seconds: Int_comparison_exp
+  metered_at: timestamptz_comparison_exp
+  number: Int_comparison_exp
+  observed_status: run_status_comparison_exp
+  optimizer_reconciled_at: timestamptz_comparison_exp
+  optimizer_trial_number: Int_comparison_exp
+  provisioning_attempted: Boolean_comparison_exp
+  queue_name: String_comparison_exp
+  requested_cpu_millicores: Int_comparison_exp
+  requested_memory_mb: Int_comparison_exp
+  results_accepted_at: timestamptz_comparison_exp
+  run: runs_bool_exp
+  run_id: String_comparison_exp
+}
+
+"""Ordering options when selecting data from "optimization_trials"."""
+input optimization_trials_order_by {
+  admitted_at: order_by
+  cancellation_reason: order_by
+  cancellation_requested_at: order_by
+  container_state: order_by
+  desired_status: order_by
+  duration_seconds: order_by
+  exit_code: order_by
+  failure_category: order_by
+  failure_message: order_by
+  failure_reason: order_by
+  k8s_job_name: order_by
+  k8s_job_uid: order_by
+  k8s_namespace: order_by
+  kueue_workload_name: order_by
+  logs: order_by
+  machine_size: order_by
+  max_duration_seconds: order_by
+  metered_at: order_by
+  number: order_by
+  observed_status: order_by
+  optimizer_reconciled_at: order_by
+  optimizer_trial_number: order_by
+  provisioning_attempted: order_by
+  queue_name: order_by
+  requested_cpu_millicores: order_by
+  requested_memory_mb: order_by
+  results_accepted_at: order_by
+  run: runs_order_by
+  run_id: order_by
+}
+
+"""column ordering options"""
+enum order_by {
+  """in ascending order, nulls last"""
+  asc
+  """in ascending order, nulls first"""
+  asc_nulls_first
+  """in ascending order, nulls last"""
+  asc_nulls_last
+  """in descending order, nulls first"""
+  desc
+  """in descending order, nulls first"""
+  desc_nulls_first
+  """in descending order, nulls last"""
+  desc_nulls_last
+}
+
+scalar organization_access
+
+"""
+Boolean expression to compare columns of type "organization_access". All fields are combined with logical 'AND'.
+"""
+input organization_access_comparison_exp {
+  _eq: organization_access
+  _gt: organization_access
+  _gte: organization_access
+  _in: [organization_access!]
+  _is_null: Boolean
+  _lt: organization_access
+  _lte: organization_access
+  _neq: organization_access
+  _nin: [organization_access!]
+}
+
+"""
+Boolean expression to filter rows from the table "organization_network_policies". All fields are combined with a logical 'AND'.
+"""
+input organization_network_policies_bool_exp {
+  _and: [organization_network_policies_bool_exp!]
+  _not: organization_network_policies_bool_exp
+  _or: [organization_network_policies_bool_exp!]
+  organization: organizations_bool_exp
+  organization_id: String_comparison_exp
+  revision: Int_comparison_exp
+  suspended: Boolean_comparison_exp
+}
+
+"""
+Ordering options when selecting data from "organization_network_policies".
+"""
+input organization_network_policies_order_by {
+  organization: organizations_order_by
+  organization_id: order_by
+  revision: order_by
+  suspended: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "organization_registries". All fields are combined with a logical 'AND'.
+"""
+input organization_registries_bool_exp {
+  _and: [organization_registries_bool_exp!]
+  _not: organization_registries_bool_exp
+  _or: [organization_registries_bool_exp!]
+  organization: organizations_bool_exp
+  organization_id: String_comparison_exp
+  project_name: String_comparison_exp
+  provisioned_at: timestamptz_comparison_exp
+  status: registry_status_comparison_exp
+  storage_limit_bytes: bigint_comparison_exp
+  url: String_comparison_exp
+}
+
+"""Ordering options when selecting data from "organization_registries"."""
+input organization_registries_order_by {
+  organization: organizations_order_by
+  organization_id: order_by
+  project_name: order_by
+  provisioned_at: order_by
+  status: order_by
+  storage_limit_bytes: order_by
+  url: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "organizations". All fields are combined with a logical 'AND'.
+"""
+input organizations_bool_exp {
+  _and: [organizations_bool_exp!]
+  _not: organizations_bool_exp
+  _or: [organizations_bool_exp!]
+  access_message: String_comparison_exp
+  access_status: organization_access_comparison_exp
+  capability_overrides: jsonb_comparison_exp
+  experiments_created_count: bigint_comparison_exp
+  id: String_comparison_exp
+  members: memberships_bool_exp
+  members_aggregate: memberships_aggregate_bool_exp
+  network_policy: organization_network_policies_bool_exp
+  network_requests: network_requests_bool_exp
+  network_requests_aggregate: network_requests_aggregate_bool_exp
+  network_rules: network_rules_bool_exp
+  network_rules_aggregate: network_rules_aggregate_bool_exp
+  plan_revision: plan_revision_comparison_exp
+  plan_source: plan_source_comparison_exp
+  registry: organization_registries_bool_exp
+  slug: String_comparison_exp
+  subscription_status: subscription_status_comparison_exp
+}
+
+"""Ordering options when selecting data from "organizations"."""
+input organizations_order_by {
+  access_message: order_by
+  access_status: order_by
+  capability_overrides: order_by
+  experiments_created_count: order_by
+  id: order_by
+  members_aggregate: memberships_aggregate_order_by
+  network_policy: organization_network_policies_order_by
+  network_requests_aggregate: network_requests_aggregate_order_by
+  network_rules_aggregate: network_rules_aggregate_order_by
+  plan_revision: order_by
+  plan_source: order_by
+  registry: organization_registries_order_by
+  slug: order_by
+  subscription_status: order_by
+}
+
+scalar parameter_kind
+
+"""
+Boolean expression to compare columns of type "parameter_kind". All fields are combined with logical 'AND'.
+"""
+input parameter_kind_comparison_exp {
+  _eq: parameter_kind
+  _gt: parameter_kind
+  _gte: parameter_kind
+  _in: [parameter_kind!]
+  _is_null: Boolean
+  _lt: parameter_kind
+  _lte: parameter_kind
+  _neq: parameter_kind
+  _nin: [parameter_kind!]
+}
+
+scalar parameter_value_kind
+
+"""
+Boolean expression to compare columns of type "parameter_value_kind". All fields are combined with logical 'AND'.
+"""
+input parameter_value_kind_comparison_exp {
+  _eq: parameter_value_kind
+  _gt: parameter_value_kind
+  _gte: parameter_value_kind
+  _in: [parameter_value_kind!]
+  _is_null: Boolean
+  _lt: parameter_value_kind
+  _lte: parameter_value_kind
+  _neq: parameter_value_kind
+  _nin: [parameter_value_kind!]
+}
+
+scalar plan_revision
+
+"""
+Boolean expression to compare columns of type "plan_revision". All fields are combined with logical 'AND'.
+"""
+input plan_revision_comparison_exp {
+  _eq: plan_revision
+  _gt: plan_revision
+  _gte: plan_revision
+  _in: [plan_revision!]
+  _is_null: Boolean
+  _lt: plan_revision
+  _lte: plan_revision
+  _neq: plan_revision
+  _nin: [plan_revision!]
+}
+
+scalar plan_source
+
+"""
+Boolean expression to compare columns of type "plan_source". All fields are combined with logical 'AND'.
+"""
+input plan_source_comparison_exp {
+  _eq: plan_source
+  _gt: plan_source
+  _gte: plan_source
+  _in: [plan_source!]
+  _is_null: Boolean
+  _lt: plan_source
+  _lte: plan_source
+  _neq: plan_source
+  _nin: [plan_source!]
+}
+
+type projects {
+  id: String!
+  name: String!
+}
+
+"""
+Boolean expression to filter rows from the table "projects". All fields are combined with a logical 'AND'.
+"""
+input projects_bool_exp {
+  _and: [projects_bool_exp!]
+  _not: projects_bool_exp
+  _or: [projects_bool_exp!]
+  created_at: timestamptz_comparison_exp
+  created_by_id: String_comparison_exp
+  creator: users_bool_exp
+  deletion_requested_at: timestamptz_comparison_exp
+  description: String_comparison_exp
+  experiments: experiments_bool_exp
+  experiments_aggregate: experiments_aggregate_bool_exp
+  id: String_comparison_exp
+  name: String_comparison_exp
+  organization: organizations_bool_exp
+  organization_id: String_comparison_exp
+  runs: runs_bool_exp
+  runs_aggregate: runs_aggregate_bool_exp
+  updated_at: timestamptz_comparison_exp
+}
+
+"""Ordering options when selecting data from "projects"."""
+input projects_order_by {
+  created_at: order_by
+  created_by_id: order_by
+  creator: users_order_by
+  deletion_requested_at: order_by
+  description: order_by
+  experiments_aggregate: experiments_aggregate_order_by
+  id: order_by
+  name: order_by
+  organization: organizations_order_by
+  organization_id: order_by
+  runs_aggregate: runs_aggregate_order_by
+  updated_at: order_by
+}
+
+"""
+select columns of table "projects"
+"""
+enum projects_select_column {
+  """column name"""
+  created_at
+  """column name"""
+  created_by_id
+  """column name"""
+  deletion_requested_at
+  """column name"""
+  description
+  """column name"""
+  id
+  """column name"""
+  name
+  """column name"""
+  organization_id
+  """column name"""
+  updated_at
+}
+
+scalar registry_status
+
+"""
+Boolean expression to compare columns of type "registry_status". All fields are combined with logical 'AND'.
+"""
+input registry_status_comparison_exp {
+  _eq: registry_status
+  _gt: registry_status
+  _gte: registry_status
+  _in: [registry_status!]
+  _is_null: Boolean
+  _lt: registry_status
+  _lte: registry_status
+  _neq: registry_status
+  _nin: [registry_status!]
+}
+
+scalar reporting_mode
+
+"""
+Boolean expression to compare columns of type "reporting_mode". All fields are combined with logical 'AND'.
+"""
+input reporting_mode_comparison_exp {
+  _eq: reporting_mode
+  _gt: reporting_mode
+  _gte: reporting_mode
+  _in: [reporting_mode!]
+  _is_null: Boolean
+  _lt: reporting_mode
+  _lte: reporting_mode
+  _neq: reporting_mode
+  _nin: [reporting_mode!]
+}
+
+scalar run_desired_status
+
+"""
+Boolean expression to compare columns of type "run_desired_status". All fields are combined with logical 'AND'.
+"""
+input run_desired_status_comparison_exp {
+  _eq: run_desired_status
+  _gt: run_desired_status
+  _gte: run_desired_status
+  _in: [run_desired_status!]
+  _is_null: Boolean
+  _lt: run_desired_status
+  _lte: run_desired_status
+  _neq: run_desired_status
+  _nin: [run_desired_status!]
+}
+
+type run_final_metrics {
+  key: String!
+  value: float8!
+}
+
+input run_final_metrics_aggregate_bool_exp {
+  avg: run_final_metrics_aggregate_bool_exp_avg
+  corr: run_final_metrics_aggregate_bool_exp_corr
+  count: run_final_metrics_aggregate_bool_exp_count
+  covar_samp: run_final_metrics_aggregate_bool_exp_covar_samp
+  max: run_final_metrics_aggregate_bool_exp_max
+  min: run_final_metrics_aggregate_bool_exp_min
+  stddev_samp: run_final_metrics_aggregate_bool_exp_stddev_samp
+  sum: run_final_metrics_aggregate_bool_exp_sum
+  var_samp: run_final_metrics_aggregate_bool_exp_var_samp
+}
+
+input run_final_metrics_aggregate_bool_exp_avg {
+  arguments: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_avg_arguments_columns!
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_final_metrics_aggregate_bool_exp_corr {
+  arguments: run_final_metrics_aggregate_bool_exp_corr_arguments!
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_final_metrics_aggregate_bool_exp_corr_arguments {
+  X: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_corr_arguments_columns!
+  Y: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_corr_arguments_columns!
+}
+
+input run_final_metrics_aggregate_bool_exp_count {
+  arguments: [run_final_metrics_select_column!]
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+input run_final_metrics_aggregate_bool_exp_covar_samp {
+  arguments: run_final_metrics_aggregate_bool_exp_covar_samp_arguments!
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_final_metrics_aggregate_bool_exp_covar_samp_arguments {
+  X: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_covar_samp_arguments_columns!
+  Y: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_covar_samp_arguments_columns!
+}
+
+input run_final_metrics_aggregate_bool_exp_max {
+  arguments: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_max_arguments_columns!
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_final_metrics_aggregate_bool_exp_min {
+  arguments: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_min_arguments_columns!
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_final_metrics_aggregate_bool_exp_stddev_samp {
+  arguments: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_stddev_samp_arguments_columns!
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_final_metrics_aggregate_bool_exp_sum {
+  arguments: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_sum_arguments_columns!
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_final_metrics_aggregate_bool_exp_var_samp {
+  arguments: run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_var_samp_arguments_columns!
+  distinct: Boolean
+  filter: run_final_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+"""
+order by aggregate values of table "run_final_metrics"
+"""
+input run_final_metrics_aggregate_order_by {
+  avg: run_final_metrics_avg_order_by
+  count: order_by
+  max: run_final_metrics_max_order_by
+  min: run_final_metrics_min_order_by
+  stddev: run_final_metrics_stddev_order_by
+  stddev_pop: run_final_metrics_stddev_pop_order_by
+  stddev_samp: run_final_metrics_stddev_samp_order_by
+  sum: run_final_metrics_sum_order_by
+  var_pop: run_final_metrics_var_pop_order_by
+  var_samp: run_final_metrics_var_samp_order_by
+  variance: run_final_metrics_variance_order_by
+}
+
+"""
+order by avg() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_avg_order_by {
+  value: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "run_final_metrics". All fields are combined with a logical 'AND'.
+"""
+input run_final_metrics_bool_exp {
+  _and: [run_final_metrics_bool_exp!]
+  _not: run_final_metrics_bool_exp
+  _or: [run_final_metrics_bool_exp!]
+  key: String_comparison_exp
+  run: runs_bool_exp
+  run_id: String_comparison_exp
+  value: float8_comparison_exp
+}
+
+"""
+order by max() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_max_order_by {
+  key: order_by
+  run_id: order_by
+  value: order_by
+}
+
+"""
+order by min() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_min_order_by {
+  key: order_by
+  run_id: order_by
+  value: order_by
+}
+
+"""Ordering options when selecting data from "run_final_metrics"."""
+input run_final_metrics_order_by {
+  key: order_by
+  run: runs_order_by
+  run_id: order_by
+  value: order_by
+}
+
+"""
+select columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column {
+  """column name"""
+  key
+  """column name"""
+  run_id
+  """column name"""
+  value
+}
+
+"""
+select "run_final_metrics_aggregate_bool_exp_avg_arguments_columns" columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_avg_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_final_metrics_aggregate_bool_exp_corr_arguments_columns" columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_corr_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_final_metrics_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_covar_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_final_metrics_aggregate_bool_exp_max_arguments_columns" columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_max_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_final_metrics_aggregate_bool_exp_min_arguments_columns" columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_min_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_final_metrics_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_stddev_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_final_metrics_aggregate_bool_exp_sum_arguments_columns" columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_sum_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_final_metrics_aggregate_bool_exp_var_samp_arguments_columns" columns of table "run_final_metrics"
+"""
+enum run_final_metrics_select_column_run_final_metrics_aggregate_bool_exp_var_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+order by stddev() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_stddev_order_by {
+  value: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_stddev_pop_order_by {
+  value: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_stddev_samp_order_by {
+  value: order_by
+}
+
+"""
+order by sum() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_sum_order_by {
+  value: order_by
+}
+
+"""
+order by var_pop() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_var_pop_order_by {
+  value: order_by
+}
+
+"""
+order by var_samp() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_var_samp_order_by {
+  value: order_by
+}
+
+"""
+order by variance() on columns of table "run_final_metrics"
+"""
+input run_final_metrics_variance_order_by {
+  value: order_by
+}
+
+type run_metrics {
+  aggregation: metric_aggregation
+  explicit_value: float8
+  key: String!
+  last_value: float8
+  max_value: float8
+  mean_value: float8
+  min_value: float8
+}
+
+input run_metrics_aggregate_bool_exp {
+  avg: run_metrics_aggregate_bool_exp_avg
+  corr: run_metrics_aggregate_bool_exp_corr
+  count: run_metrics_aggregate_bool_exp_count
+  covar_samp: run_metrics_aggregate_bool_exp_covar_samp
+  max: run_metrics_aggregate_bool_exp_max
+  min: run_metrics_aggregate_bool_exp_min
+  stddev_samp: run_metrics_aggregate_bool_exp_stddev_samp
+  sum: run_metrics_aggregate_bool_exp_sum
+  var_samp: run_metrics_aggregate_bool_exp_var_samp
+}
+
+input run_metrics_aggregate_bool_exp_avg {
+  arguments: run_metrics_select_column_run_metrics_aggregate_bool_exp_avg_arguments_columns!
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_metrics_aggregate_bool_exp_corr {
+  arguments: run_metrics_aggregate_bool_exp_corr_arguments!
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_metrics_aggregate_bool_exp_corr_arguments {
+  X: run_metrics_select_column_run_metrics_aggregate_bool_exp_corr_arguments_columns!
+  Y: run_metrics_select_column_run_metrics_aggregate_bool_exp_corr_arguments_columns!
+}
+
+input run_metrics_aggregate_bool_exp_count {
+  arguments: [run_metrics_select_column!]
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+input run_metrics_aggregate_bool_exp_covar_samp {
+  arguments: run_metrics_aggregate_bool_exp_covar_samp_arguments!
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_metrics_aggregate_bool_exp_covar_samp_arguments {
+  X: run_metrics_select_column_run_metrics_aggregate_bool_exp_covar_samp_arguments_columns!
+  Y: run_metrics_select_column_run_metrics_aggregate_bool_exp_covar_samp_arguments_columns!
+}
+
+input run_metrics_aggregate_bool_exp_max {
+  arguments: run_metrics_select_column_run_metrics_aggregate_bool_exp_max_arguments_columns!
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_metrics_aggregate_bool_exp_min {
+  arguments: run_metrics_select_column_run_metrics_aggregate_bool_exp_min_arguments_columns!
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_metrics_aggregate_bool_exp_stddev_samp {
+  arguments: run_metrics_select_column_run_metrics_aggregate_bool_exp_stddev_samp_arguments_columns!
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_metrics_aggregate_bool_exp_sum {
+  arguments: run_metrics_select_column_run_metrics_aggregate_bool_exp_sum_arguments_columns!
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_metrics_aggregate_bool_exp_var_samp {
+  arguments: run_metrics_select_column_run_metrics_aggregate_bool_exp_var_samp_arguments_columns!
+  distinct: Boolean
+  filter: run_metrics_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+"""
+order by aggregate values of table "run_metrics"
+"""
+input run_metrics_aggregate_order_by {
+  avg: run_metrics_avg_order_by
+  count: order_by
+  max: run_metrics_max_order_by
+  min: run_metrics_min_order_by
+  stddev: run_metrics_stddev_order_by
+  stddev_pop: run_metrics_stddev_pop_order_by
+  stddev_samp: run_metrics_stddev_samp_order_by
+  sum: run_metrics_sum_order_by
+  var_pop: run_metrics_var_pop_order_by
+  var_samp: run_metrics_var_samp_order_by
+  variance: run_metrics_variance_order_by
+}
+
+"""
+order by avg() on columns of table "run_metrics"
+"""
+input run_metrics_avg_order_by {
+  explicit_value: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  sample_count: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "run_metrics". All fields are combined with a logical 'AND'.
+"""
+input run_metrics_bool_exp {
+  _and: [run_metrics_bool_exp!]
+  _not: run_metrics_bool_exp
+  _or: [run_metrics_bool_exp!]
+  aggregation: metric_aggregation_comparison_exp
+  explicit_value: float8_comparison_exp
+  key: String_comparison_exp
+  kind: metric_kind_comparison_exp
+  last_step: bigint_comparison_exp
+  last_value: float8_comparison_exp
+  max_value: float8_comparison_exp
+  mean_value: float8_comparison_exp
+  min_value: float8_comparison_exp
+  run: runs_bool_exp
+  run_id: String_comparison_exp
+  sample_count: bigint_comparison_exp
+}
+
+"""
+order by max() on columns of table "run_metrics"
+"""
+input run_metrics_max_order_by {
+  aggregation: order_by
+  explicit_value: order_by
+  key: order_by
+  kind: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  run_id: order_by
+  sample_count: order_by
+}
+
+"""
+order by min() on columns of table "run_metrics"
+"""
+input run_metrics_min_order_by {
+  aggregation: order_by
+  explicit_value: order_by
+  key: order_by
+  kind: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  run_id: order_by
+  sample_count: order_by
+}
+
+"""Ordering options when selecting data from "run_metrics"."""
+input run_metrics_order_by {
+  aggregation: order_by
+  explicit_value: order_by
+  key: order_by
+  kind: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  run: runs_order_by
+  run_id: order_by
+  sample_count: order_by
+}
+
+"""
+select columns of table "run_metrics"
+"""
+enum run_metrics_select_column {
+  """column name"""
+  aggregation
+  """column name"""
+  explicit_value
+  """column name"""
+  key
+  """column name"""
+  kind
+  """column name"""
+  last_step
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+  """column name"""
+  run_id
+  """column name"""
+  sample_count
+}
+
+"""
+select "run_metrics_aggregate_bool_exp_avg_arguments_columns" columns of table "run_metrics"
+"""
+enum run_metrics_select_column_run_metrics_aggregate_bool_exp_avg_arguments_columns {
+  """column name"""
+  explicit_value
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+}
+
+"""
+select "run_metrics_aggregate_bool_exp_corr_arguments_columns" columns of table "run_metrics"
+"""
+enum run_metrics_select_column_run_metrics_aggregate_bool_exp_corr_arguments_columns {
+  """column name"""
+  explicit_value
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+}
+
+"""
+select "run_metrics_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "run_metrics"
+"""
+enum run_metrics_select_column_run_metrics_aggregate_bool_exp_covar_samp_arguments_columns {
+  """column name"""
+  explicit_value
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+}
+
+"""
+select "run_metrics_aggregate_bool_exp_max_arguments_columns" columns of table "run_metrics"
+"""
+enum run_metrics_select_column_run_metrics_aggregate_bool_exp_max_arguments_columns {
+  """column name"""
+  explicit_value
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+}
+
+"""
+select "run_metrics_aggregate_bool_exp_min_arguments_columns" columns of table "run_metrics"
+"""
+enum run_metrics_select_column_run_metrics_aggregate_bool_exp_min_arguments_columns {
+  """column name"""
+  explicit_value
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+}
+
+"""
+select "run_metrics_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "run_metrics"
+"""
+enum run_metrics_select_column_run_metrics_aggregate_bool_exp_stddev_samp_arguments_columns {
+  """column name"""
+  explicit_value
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+}
+
+"""
+select "run_metrics_aggregate_bool_exp_sum_arguments_columns" columns of table "run_metrics"
+"""
+enum run_metrics_select_column_run_metrics_aggregate_bool_exp_sum_arguments_columns {
+  """column name"""
+  explicit_value
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+}
+
+"""
+select "run_metrics_aggregate_bool_exp_var_samp_arguments_columns" columns of table "run_metrics"
+"""
+enum run_metrics_select_column_run_metrics_aggregate_bool_exp_var_samp_arguments_columns {
+  """column name"""
+  explicit_value
+  """column name"""
+  last_value
+  """column name"""
+  max_value
+  """column name"""
+  mean_value
+  """column name"""
+  min_value
+}
+
+"""
+order by stddev() on columns of table "run_metrics"
+"""
+input run_metrics_stddev_order_by {
+  explicit_value: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  sample_count: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "run_metrics"
+"""
+input run_metrics_stddev_pop_order_by {
+  explicit_value: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  sample_count: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "run_metrics"
+"""
+input run_metrics_stddev_samp_order_by {
+  explicit_value: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  sample_count: order_by
+}
+
+"""
+order by sum() on columns of table "run_metrics"
+"""
+input run_metrics_sum_order_by {
+  explicit_value: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  sample_count: order_by
+}
+
+"""
+order by var_pop() on columns of table "run_metrics"
+"""
+input run_metrics_var_pop_order_by {
+  explicit_value: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  sample_count: order_by
+}
+
+"""
+order by var_samp() on columns of table "run_metrics"
+"""
+input run_metrics_var_samp_order_by {
+  explicit_value: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  sample_count: order_by
+}
+
+"""
+order by variance() on columns of table "run_metrics"
+"""
+input run_metrics_variance_order_by {
+  explicit_value: order_by
+  last_step: order_by
+  last_value: order_by
+  max_value: order_by
+  mean_value: order_by
+  min_value: order_by
+  sample_count: order_by
+}
+
+input run_parameters_aggregate_bool_exp {
+  avg: run_parameters_aggregate_bool_exp_avg
+  bool_and: run_parameters_aggregate_bool_exp_bool_and
+  bool_or: run_parameters_aggregate_bool_exp_bool_or
+  corr: run_parameters_aggregate_bool_exp_corr
+  count: run_parameters_aggregate_bool_exp_count
+  covar_samp: run_parameters_aggregate_bool_exp_covar_samp
+  max: run_parameters_aggregate_bool_exp_max
+  min: run_parameters_aggregate_bool_exp_min
+  stddev_samp: run_parameters_aggregate_bool_exp_stddev_samp
+  sum: run_parameters_aggregate_bool_exp_sum
+  var_samp: run_parameters_aggregate_bool_exp_var_samp
+}
+
+input run_parameters_aggregate_bool_exp_avg {
+  arguments: run_parameters_select_column_run_parameters_aggregate_bool_exp_avg_arguments_columns!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_bool_and {
+  arguments: run_parameters_select_column_run_parameters_aggregate_bool_exp_bool_and_arguments_columns!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_bool_or {
+  arguments: run_parameters_select_column_run_parameters_aggregate_bool_exp_bool_or_arguments_columns!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_corr {
+  arguments: run_parameters_aggregate_bool_exp_corr_arguments!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_corr_arguments {
+  X: run_parameters_select_column_run_parameters_aggregate_bool_exp_corr_arguments_columns!
+  Y: run_parameters_select_column_run_parameters_aggregate_bool_exp_corr_arguments_columns!
+}
+
+input run_parameters_aggregate_bool_exp_count {
+  arguments: [run_parameters_select_column!]
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_covar_samp {
+  arguments: run_parameters_aggregate_bool_exp_covar_samp_arguments!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_covar_samp_arguments {
+  X: run_parameters_select_column_run_parameters_aggregate_bool_exp_covar_samp_arguments_columns!
+  Y: run_parameters_select_column_run_parameters_aggregate_bool_exp_covar_samp_arguments_columns!
+}
+
+input run_parameters_aggregate_bool_exp_max {
+  arguments: run_parameters_select_column_run_parameters_aggregate_bool_exp_max_arguments_columns!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_min {
+  arguments: run_parameters_select_column_run_parameters_aggregate_bool_exp_min_arguments_columns!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_stddev_samp {
+  arguments: run_parameters_select_column_run_parameters_aggregate_bool_exp_stddev_samp_arguments_columns!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_sum {
+  arguments: run_parameters_select_column_run_parameters_aggregate_bool_exp_sum_arguments_columns!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_parameters_aggregate_bool_exp_var_samp {
+  arguments: run_parameters_select_column_run_parameters_aggregate_bool_exp_var_samp_arguments_columns!
+  distinct: Boolean
+  filter: run_parameters_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+"""
+order by aggregate values of table "run_parameters"
+"""
+input run_parameters_aggregate_order_by {
+  avg: run_parameters_avg_order_by
+  count: order_by
+  max: run_parameters_max_order_by
+  min: run_parameters_min_order_by
+  stddev: run_parameters_stddev_order_by
+  stddev_pop: run_parameters_stddev_pop_order_by
+  stddev_samp: run_parameters_stddev_samp_order_by
+  sum: run_parameters_sum_order_by
+  var_pop: run_parameters_var_pop_order_by
+  var_samp: run_parameters_var_samp_order_by
+  variance: run_parameters_variance_order_by
+}
+
+"""
+order by avg() on columns of table "run_parameters"
+"""
+input run_parameters_avg_order_by {
+  number_value: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "run_parameters". All fields are combined with a logical 'AND'.
+"""
+input run_parameters_bool_exp {
+  _and: [run_parameters_bool_exp!]
+  _not: run_parameters_bool_exp
+  _or: [run_parameters_bool_exp!]
+  boolean_value: Boolean_comparison_exp
+  key: String_comparison_exp
+  number_value: float8_comparison_exp
+  run: runs_bool_exp
+  run_id: String_comparison_exp
+  string_value: String_comparison_exp
+  value_kind: parameter_value_kind_comparison_exp
+}
+
+"""
+order by max() on columns of table "run_parameters"
+"""
+input run_parameters_max_order_by {
+  key: order_by
+  number_value: order_by
+  run_id: order_by
+  string_value: order_by
+  value_kind: order_by
+}
+
+"""
+order by min() on columns of table "run_parameters"
+"""
+input run_parameters_min_order_by {
+  key: order_by
+  number_value: order_by
+  run_id: order_by
+  string_value: order_by
+  value_kind: order_by
+}
+
+"""
+select columns of table "run_parameters"
+"""
+enum run_parameters_select_column {
+  """column name"""
+  boolean_value
+  """column name"""
+  key
+  """column name"""
+  number_value
+  """column name"""
+  run_id
+  """column name"""
+  string_value
+  """column name"""
+  value_kind
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_avg_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_avg_arguments_columns {
+  """column name"""
+  number_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_bool_and_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_bool_and_arguments_columns {
+  """column name"""
+  boolean_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_bool_or_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_bool_or_arguments_columns {
+  """column name"""
+  boolean_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_corr_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_corr_arguments_columns {
+  """column name"""
+  number_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_covar_samp_arguments_columns {
+  """column name"""
+  number_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_max_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_max_arguments_columns {
+  """column name"""
+  number_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_min_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_min_arguments_columns {
+  """column name"""
+  number_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_stddev_samp_arguments_columns {
+  """column name"""
+  number_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_sum_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_sum_arguments_columns {
+  """column name"""
+  number_value
+}
+
+"""
+select "run_parameters_aggregate_bool_exp_var_samp_arguments_columns" columns of table "run_parameters"
+"""
+enum run_parameters_select_column_run_parameters_aggregate_bool_exp_var_samp_arguments_columns {
+  """column name"""
+  number_value
+}
+
+"""
+order by stddev() on columns of table "run_parameters"
+"""
+input run_parameters_stddev_order_by {
+  number_value: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "run_parameters"
+"""
+input run_parameters_stddev_pop_order_by {
+  number_value: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "run_parameters"
+"""
+input run_parameters_stddev_samp_order_by {
+  number_value: order_by
+}
+
+"""
+order by sum() on columns of table "run_parameters"
+"""
+input run_parameters_sum_order_by {
+  number_value: order_by
+}
+
+"""
+order by var_pop() on columns of table "run_parameters"
+"""
+input run_parameters_var_pop_order_by {
+  number_value: order_by
+}
+
+"""
+order by var_samp() on columns of table "run_parameters"
+"""
+input run_parameters_var_samp_order_by {
+  number_value: order_by
+}
+
+"""
+order by variance() on columns of table "run_parameters"
+"""
+input run_parameters_variance_order_by {
+  number_value: order_by
+}
+
+input run_samples_aggregate_bool_exp {
+  avg: run_samples_aggregate_bool_exp_avg
+  corr: run_samples_aggregate_bool_exp_corr
+  count: run_samples_aggregate_bool_exp_count
+  covar_samp: run_samples_aggregate_bool_exp_covar_samp
+  max: run_samples_aggregate_bool_exp_max
+  min: run_samples_aggregate_bool_exp_min
+  stddev_samp: run_samples_aggregate_bool_exp_stddev_samp
+  sum: run_samples_aggregate_bool_exp_sum
+  var_samp: run_samples_aggregate_bool_exp_var_samp
+}
+
+input run_samples_aggregate_bool_exp_avg {
+  arguments: run_samples_select_column_run_samples_aggregate_bool_exp_avg_arguments_columns!
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_samples_aggregate_bool_exp_corr {
+  arguments: run_samples_aggregate_bool_exp_corr_arguments!
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_samples_aggregate_bool_exp_corr_arguments {
+  X: run_samples_select_column_run_samples_aggregate_bool_exp_corr_arguments_columns!
+  Y: run_samples_select_column_run_samples_aggregate_bool_exp_corr_arguments_columns!
+}
+
+input run_samples_aggregate_bool_exp_count {
+  arguments: [run_samples_select_column!]
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+input run_samples_aggregate_bool_exp_covar_samp {
+  arguments: run_samples_aggregate_bool_exp_covar_samp_arguments!
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_samples_aggregate_bool_exp_covar_samp_arguments {
+  X: run_samples_select_column_run_samples_aggregate_bool_exp_covar_samp_arguments_columns!
+  Y: run_samples_select_column_run_samples_aggregate_bool_exp_covar_samp_arguments_columns!
+}
+
+input run_samples_aggregate_bool_exp_max {
+  arguments: run_samples_select_column_run_samples_aggregate_bool_exp_max_arguments_columns!
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_samples_aggregate_bool_exp_min {
+  arguments: run_samples_select_column_run_samples_aggregate_bool_exp_min_arguments_columns!
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_samples_aggregate_bool_exp_stddev_samp {
+  arguments: run_samples_select_column_run_samples_aggregate_bool_exp_stddev_samp_arguments_columns!
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_samples_aggregate_bool_exp_sum {
+  arguments: run_samples_select_column_run_samples_aggregate_bool_exp_sum_arguments_columns!
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+input run_samples_aggregate_bool_exp_var_samp {
+  arguments: run_samples_select_column_run_samples_aggregate_bool_exp_var_samp_arguments_columns!
+  distinct: Boolean
+  filter: run_samples_bool_exp
+  predicate: float8_comparison_exp!
+}
+
+"""
+order by aggregate values of table "run_samples"
+"""
+input run_samples_aggregate_order_by {
+  avg: run_samples_avg_order_by
+  count: order_by
+  max: run_samples_max_order_by
+  min: run_samples_min_order_by
+  stddev: run_samples_stddev_order_by
+  stddev_pop: run_samples_stddev_pop_order_by
+  stddev_samp: run_samples_stddev_samp_order_by
+  sum: run_samples_sum_order_by
+  var_pop: run_samples_var_pop_order_by
+  var_samp: run_samples_var_samp_order_by
+  variance: run_samples_variance_order_by
+}
+
+"""
+order by avg() on columns of table "run_samples"
+"""
+input run_samples_avg_order_by {
+  step: order_by
+  value: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "run_samples". All fields are combined with a logical 'AND'.
+"""
+input run_samples_bool_exp {
+  _and: [run_samples_bool_exp!]
+  _not: run_samples_bool_exp
+  _or: [run_samples_bool_exp!]
+  histogram: jsonb_comparison_exp
+  id: String_comparison_exp
+  kind: metric_kind_comparison_exp
+  metric_key: String_comparison_exp
+  observed_at: timestamptz_comparison_exp
+  run: runs_bool_exp
+  run_id: String_comparison_exp
+  step: bigint_comparison_exp
+  value: float8_comparison_exp
+}
+
+"""
+order by max() on columns of table "run_samples"
+"""
+input run_samples_max_order_by {
+  id: order_by
+  kind: order_by
+  metric_key: order_by
+  observed_at: order_by
+  run_id: order_by
+  step: order_by
+  value: order_by
+}
+
+"""
+order by min() on columns of table "run_samples"
+"""
+input run_samples_min_order_by {
+  id: order_by
+  kind: order_by
+  metric_key: order_by
+  observed_at: order_by
+  run_id: order_by
+  step: order_by
+  value: order_by
+}
+
+"""
+select columns of table "run_samples"
+"""
+enum run_samples_select_column {
+  """column name"""
+  histogram
+  """column name"""
+  id
+  """column name"""
+  kind
+  """column name"""
+  metric_key
+  """column name"""
+  observed_at
+  """column name"""
+  run_id
+  """column name"""
+  step
+  """column name"""
+  value
+}
+
+"""
+select "run_samples_aggregate_bool_exp_avg_arguments_columns" columns of table "run_samples"
+"""
+enum run_samples_select_column_run_samples_aggregate_bool_exp_avg_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_samples_aggregate_bool_exp_corr_arguments_columns" columns of table "run_samples"
+"""
+enum run_samples_select_column_run_samples_aggregate_bool_exp_corr_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_samples_aggregate_bool_exp_covar_samp_arguments_columns" columns of table "run_samples"
+"""
+enum run_samples_select_column_run_samples_aggregate_bool_exp_covar_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_samples_aggregate_bool_exp_max_arguments_columns" columns of table "run_samples"
+"""
+enum run_samples_select_column_run_samples_aggregate_bool_exp_max_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_samples_aggregate_bool_exp_min_arguments_columns" columns of table "run_samples"
+"""
+enum run_samples_select_column_run_samples_aggregate_bool_exp_min_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_samples_aggregate_bool_exp_stddev_samp_arguments_columns" columns of table "run_samples"
+"""
+enum run_samples_select_column_run_samples_aggregate_bool_exp_stddev_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_samples_aggregate_bool_exp_sum_arguments_columns" columns of table "run_samples"
+"""
+enum run_samples_select_column_run_samples_aggregate_bool_exp_sum_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+select "run_samples_aggregate_bool_exp_var_samp_arguments_columns" columns of table "run_samples"
+"""
+enum run_samples_select_column_run_samples_aggregate_bool_exp_var_samp_arguments_columns {
+  """column name"""
+  value
+}
+
+"""
+order by stddev() on columns of table "run_samples"
+"""
+input run_samples_stddev_order_by {
+  step: order_by
+  value: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "run_samples"
+"""
+input run_samples_stddev_pop_order_by {
+  step: order_by
+  value: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "run_samples"
+"""
+input run_samples_stddev_samp_order_by {
+  step: order_by
+  value: order_by
+}
+
+"""
+order by sum() on columns of table "run_samples"
+"""
+input run_samples_sum_order_by {
+  step: order_by
+  value: order_by
+}
+
+"""
+order by var_pop() on columns of table "run_samples"
+"""
+input run_samples_var_pop_order_by {
+  step: order_by
+  value: order_by
+}
+
+"""
+order by var_samp() on columns of table "run_samples"
+"""
+input run_samples_var_samp_order_by {
+  step: order_by
+  value: order_by
+}
+
+"""
+order by variance() on columns of table "run_samples"
+"""
+input run_samples_variance_order_by {
+  step: order_by
+  value: order_by
+}
+
+scalar run_status
+
+"""
+Boolean expression to compare columns of type "run_status". All fields are combined with logical 'AND'.
+"""
+input run_status_comparison_exp {
+  _eq: run_status
+  _gt: run_status
+  _gte: run_status
+  _in: [run_status!]
+  _is_null: Boolean
+  _lt: run_status
+  _lte: run_status
+  _neq: run_status
+  _nin: [run_status!]
+}
+
+input run_tags_aggregate_bool_exp {
+  count: run_tags_aggregate_bool_exp_count
+}
+
+input run_tags_aggregate_bool_exp_count {
+  arguments: [run_tags_select_column!]
+  distinct: Boolean
+  filter: run_tags_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "run_tags"
+"""
+input run_tags_aggregate_order_by {
+  count: order_by
+  max: run_tags_max_order_by
+  min: run_tags_min_order_by
+}
+
+"""
+Boolean expression to filter rows from the table "run_tags". All fields are combined with a logical 'AND'.
+"""
+input run_tags_bool_exp {
+  _and: [run_tags_bool_exp!]
+  _not: run_tags_bool_exp
+  _or: [run_tags_bool_exp!]
+  kind: tag_kind_comparison_exp
+  organization_id: String_comparison_exp
+  run: runs_bool_exp
+  run_id: String_comparison_exp
+  tag_name: String_comparison_exp
+}
+
+"""
+order by max() on columns of table "run_tags"
+"""
+input run_tags_max_order_by {
+  kind: order_by
+  organization_id: order_by
+  run_id: order_by
+  tag_name: order_by
+}
+
+"""
+order by min() on columns of table "run_tags"
+"""
+input run_tags_min_order_by {
+  kind: order_by
+  organization_id: order_by
+  run_id: order_by
+  tag_name: order_by
+}
+
+"""
+select columns of table "run_tags"
+"""
+enum run_tags_select_column {
+  """column name"""
+  kind
+  """column name"""
+  organization_id
+  """column name"""
+  run_id
+  """column name"""
+  tag_name
+}
+
+type runs {
+  """An array relationship"""
+  final_metrics(
+    """distinct select on columns"""
+    distinct_on: [run_final_metrics_select_column!]
+    """limit the number of rows returned"""
+    limit: Int
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+    """sort the rows by one or more columns"""
+    order_by: [run_final_metrics_order_by!]
+    """filter the rows returned"""
+    where: run_final_metrics_bool_exp
+  ): [run_final_metrics!]!
+  finalization_state: finalization_state!
+  finished_at: timestamptz
+  id: String!
+  """An array relationship"""
+  metrics(
+    """distinct select on columns"""
+    distinct_on: [run_metrics_select_column!]
+    """limit the number of rows returned"""
+    limit: Int
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+    """sort the rows by one or more columns"""
+    order_by: [run_metrics_order_by!]
+    """filter the rows returned"""
+    where: run_metrics_bool_exp
+  ): [run_metrics!]!
+  """An object relationship"""
+  optimization: optimization_trials
+  started_at: timestamptz
+  status: run_status!
+}
+
+input runs_aggregate_bool_exp {
+  bool_and: runs_aggregate_bool_exp_bool_and
+  bool_or: runs_aggregate_bool_exp_bool_or
+  count: runs_aggregate_bool_exp_count
+}
+
+input runs_aggregate_bool_exp_bool_and {
+  arguments: runs_select_column_runs_aggregate_bool_exp_bool_and_arguments_columns!
+  distinct: Boolean
+  filter: runs_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input runs_aggregate_bool_exp_bool_or {
+  arguments: runs_select_column_runs_aggregate_bool_exp_bool_or_arguments_columns!
+  distinct: Boolean
+  filter: runs_bool_exp
+  predicate: Boolean_comparison_exp!
+}
+
+input runs_aggregate_bool_exp_count {
+  arguments: [runs_select_column!]
+  distinct: Boolean
+  filter: runs_bool_exp
+  predicate: Int_comparison_exp!
+}
+
+"""
+order by aggregate values of table "runs"
+"""
+input runs_aggregate_order_by {
+  avg: runs_avg_order_by
+  count: order_by
+  max: runs_max_order_by
+  min: runs_min_order_by
+  stddev: runs_stddev_order_by
+  stddev_pop: runs_stddev_pop_order_by
+  stddev_samp: runs_stddev_samp_order_by
+  sum: runs_sum_order_by
+  var_pop: runs_var_pop_order_by
+  var_samp: runs_var_samp_order_by
+  variance: runs_variance_order_by
+}
+
+"""
+order by avg() on columns of table "runs"
+"""
+input runs_avg_order_by {
+  stored_bytes: order_by
+}
+
+"""
+Boolean expression to filter rows from the table "runs". All fields are combined with a logical 'AND'.
+"""
+input runs_bool_exp {
+  _and: [runs_bool_exp!]
+  _not: runs_bool_exp
+  _or: [runs_bool_exp!]
+  configs: jsonb_comparison_exp
+  created_at: timestamptz_comparison_exp
+  creator: users_bool_exp
+  experiment: experiments_bool_exp
+  experiment_id: String_comparison_exp
+  final_metrics: run_final_metrics_bool_exp
+  final_metrics_aggregate: run_final_metrics_aggregate_bool_exp
+  finalization_state: finalization_state_comparison_exp
+  finalized_at: timestamptz_comparison_exp
+  finished_at: timestamptz_comparison_exp
+  id: String_comparison_exp
+  last_contact_at: timestamptz_comparison_exp
+  last_error: String_comparison_exp
+  metrics: run_metrics_bool_exp
+  metrics_aggregate: run_metrics_aggregate_bool_exp
+  name: String_comparison_exp
+  optimization: optimization_trials_bool_exp
+  organization_id: String_comparison_exp
+  parameters: run_parameters_bool_exp
+  parameters_aggregate: run_parameters_aggregate_bool_exp
+  project_id: String_comparison_exp
+  reporting_mode: reporting_mode_comparison_exp
+  samples: run_samples_bool_exp
+  samples_aggregate: run_samples_aggregate_bool_exp
+  started_at: timestamptz_comparison_exp
+  status: run_status_comparison_exp
+  stored_bytes: bigint_comparison_exp
+  tags: run_tags_bool_exp
+  tags_aggregate: run_tags_aggregate_bool_exp
+  telemetry_closed_at: timestamptz_comparison_exp
+  truncated: Boolean_comparison_exp
+}
+
+"""
+order by max() on columns of table "runs"
+"""
+input runs_max_order_by {
+  created_at: order_by
+  experiment_id: order_by
+  finalization_state: order_by
+  finalized_at: order_by
+  finished_at: order_by
+  id: order_by
+  last_contact_at: order_by
+  last_error: order_by
+  name: order_by
+  organization_id: order_by
+  project_id: order_by
+  reporting_mode: order_by
+  started_at: order_by
+  status: order_by
+  stored_bytes: order_by
+  telemetry_closed_at: order_by
+}
+
+"""
+order by min() on columns of table "runs"
+"""
+input runs_min_order_by {
+  created_at: order_by
+  experiment_id: order_by
+  finalization_state: order_by
+  finalized_at: order_by
+  finished_at: order_by
+  id: order_by
+  last_contact_at: order_by
+  last_error: order_by
+  name: order_by
+  organization_id: order_by
+  project_id: order_by
+  reporting_mode: order_by
+  started_at: order_by
+  status: order_by
+  stored_bytes: order_by
+  telemetry_closed_at: order_by
+}
+
+"""Ordering options when selecting data from "runs"."""
+input runs_order_by {
+  configs: order_by
+  created_at: order_by
+  creator: users_order_by
+  experiment: experiments_order_by
+  experiment_id: order_by
+  final_metrics_aggregate: run_final_metrics_aggregate_order_by
+  finalization_state: order_by
+  finalized_at: order_by
+  finished_at: order_by
+  id: order_by
+  last_contact_at: order_by
+  last_error: order_by
+  metrics_aggregate: run_metrics_aggregate_order_by
+  name: order_by
+  optimization: optimization_trials_order_by
+  organization_id: order_by
+  parameters_aggregate: run_parameters_aggregate_order_by
+  project_id: order_by
+  reporting_mode: order_by
+  samples_aggregate: run_samples_aggregate_order_by
+  started_at: order_by
+  status: order_by
+  stored_bytes: order_by
+  tags_aggregate: run_tags_aggregate_order_by
+  telemetry_closed_at: order_by
+  truncated: order_by
+}
+
+"""
+select columns of table "runs"
+"""
+enum runs_select_column {
+  """column name"""
+  configs
+  """column name"""
+  created_at
+  """column name"""
+  experiment_id
+  """column name"""
+  finalization_state
+  """column name"""
+  finalized_at
+  """column name"""
+  finished_at
+  """column name"""
+  id
+  """column name"""
+  last_contact_at
+  """column name"""
+  last_error
+  """column name"""
+  name
+  """column name"""
+  organization_id
+  """column name"""
+  project_id
+  """column name"""
+  reporting_mode
+  """column name"""
+  started_at
+  """column name"""
+  status
+  """column name"""
+  stored_bytes
+  """column name"""
+  telemetry_closed_at
+  """column name"""
+  truncated
+}
+
+"""
+select "runs_aggregate_bool_exp_bool_and_arguments_columns" columns of table "runs"
+"""
+enum runs_select_column_runs_aggregate_bool_exp_bool_and_arguments_columns {
+  """column name"""
+  truncated
+}
+
+"""
+select "runs_aggregate_bool_exp_bool_or_arguments_columns" columns of table "runs"
+"""
+enum runs_select_column_runs_aggregate_bool_exp_bool_or_arguments_columns {
+  """column name"""
+  truncated
+}
+
+"""
+order by stddev() on columns of table "runs"
+"""
+input runs_stddev_order_by {
+  stored_bytes: order_by
+}
+
+"""
+order by stddev_pop() on columns of table "runs"
+"""
+input runs_stddev_pop_order_by {
+  stored_bytes: order_by
+}
+
+"""
+order by stddev_samp() on columns of table "runs"
+"""
+input runs_stddev_samp_order_by {
+  stored_bytes: order_by
+}
+
+"""
+order by sum() on columns of table "runs"
+"""
+input runs_sum_order_by {
+  stored_bytes: order_by
+}
+
+"""
+order by var_pop() on columns of table "runs"
+"""
+input runs_var_pop_order_by {
+  stored_bytes: order_by
+}
+
+"""
+order by var_samp() on columns of table "runs"
+"""
+input runs_var_samp_order_by {
+  stored_bytes: order_by
+}
+
+"""
+order by variance() on columns of table "runs"
+"""
+input runs_variance_order_by {
+  stored_bytes: order_by
+}
+
+scalar subscription_status
+
+"""
+Boolean expression to compare columns of type "subscription_status". All fields are combined with logical 'AND'.
+"""
+input subscription_status_comparison_exp {
+  _eq: subscription_status
+  _gt: subscription_status
+  _gte: subscription_status
+  _in: [subscription_status!]
+  _is_null: Boolean
+  _lt: subscription_status
+  _lte: subscription_status
+  _neq: subscription_status
+  _nin: [subscription_status!]
+}
+
+scalar tag_kind
+
+"""
+Boolean expression to compare columns of type "tag_kind". All fields are combined with logical 'AND'.
+"""
+input tag_kind_comparison_exp {
+  _eq: tag_kind
+  _gt: tag_kind
+  _gte: tag_kind
+  _in: [tag_kind!]
+  _is_null: Boolean
+  _lt: tag_kind
+  _lte: tag_kind
+  _neq: tag_kind
+  _nin: [tag_kind!]
+}
+
+scalar timestamptz
+
+"""
+Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
+"""
+input timestamptz_comparison_exp {
+  _eq: timestamptz
+  _gt: timestamptz
+  _gte: timestamptz
+  _in: [timestamptz!]
+  _is_null: Boolean
+  _lt: timestamptz
+  _lte: timestamptz
+  _neq: timestamptz
+  _nin: [timestamptz!]
+}
+
+"""
+Boolean expression to filter rows from the table "users". All fields are combined with a logical 'AND'.
+"""
+input users_bool_exp {
+  _and: [users_bool_exp!]
+  _not: users_bool_exp
+  _or: [users_bool_exp!]
+  email: String_comparison_exp
+  id: String_comparison_exp
+  memberships: memberships_bool_exp
+  memberships_aggregate: memberships_aggregate_bool_exp
+  name: String_comparison_exp
+}
+
+"""Ordering options when selecting data from "users"."""
+input users_order_by {
+  email: order_by
+  id: order_by
+  memberships_aggregate: memberships_aggregate_order_by
+  name: order_by
+}

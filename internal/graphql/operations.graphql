@@ -1,0 +1,173 @@
+query CliIdentity {
+  cliIdentity {
+    keyId
+    organizationId
+    organizationName
+    organizations {
+      id
+      slug
+      name
+      plan
+      subscriptionStatus
+    }
+    scopes
+    kind
+    ownerUserId
+    expiresAt
+  }
+}
+
+mutation CliStartLogin {
+  startCliLogin {
+    deviceCode
+    userCode
+    verificationUri
+    expiresIn
+    interval
+  }
+}
+
+mutation CliPollLogin($input: CliLoginPollInput!) {
+  pollCliLogin(input: $input) {
+    status
+    apiKey
+  }
+}
+
+query CliProjects($after: String!, $limit: Int!) {
+  projects(where: { id: { _gt: $after } }, order_by: { id: asc }, limit: $limit) {
+    id
+    name
+  }
+}
+
+mutation CliCreateProject($input: CreateProjectInput!) {
+  createProject(input: $input) {
+    id
+    name
+  }
+}
+
+fragment CliExperimentSummary on experiments {
+  id
+  name
+  projectId: project_id
+  kind
+  optimization {
+    status
+    desiredStatus: desired_status
+  }
+}
+
+query CliExperiments($after: String!, $limit: Int!) {
+  experiments(where: { id: { _gt: $after } }, order_by: { id: asc }, limit: $limit) {
+    ...CliExperimentSummary
+  }
+}
+
+query CliProjectExperiments($projectId: String!, $after: String!, $limit: Int!) {
+  experiments(
+    where: { id: { _gt: $after }, project_id: { _eq: $projectId } }
+    order_by: { id: asc }
+    limit: $limit
+  ) {
+    ...CliExperimentSummary
+  }
+}
+
+query CliValidateConfiguration($input: CliConfigurationInput!) {
+  validateCliConfiguration(input: $input) {
+    configuration
+    warnings
+  }
+}
+
+mutation CliCreateRegistryCredentials {
+  createCliRegistryCredentials {
+    registryHost
+    projectName
+    username
+    password
+    expiresAt
+  }
+}
+
+mutation CliLaunch($input: ManagedExperimentCreateInput!) {
+  createManagedExperiment(input: $input) {
+    id
+    projectId
+    name
+    dashboardUrl
+  }
+}
+
+mutation CliStop($input: ExperimentCommandInput!) {
+  stopExperiment(input: $input) {
+    id
+    desiredStatus
+    success
+  }
+}
+
+query CliExperiment($projectId: String!, $id: String!) {
+  experiments(
+    where: {
+      id: { _eq: $id }
+      project_id: { _eq: $projectId }
+      kind: { _eq: "managed_optimization" }
+    }
+    limit: 1
+  ) {
+    id
+    name
+    optimization {
+      status
+      desiredStatus: desired_status
+      maxTrialCount: max_trial_count
+    }
+    metrics(where: { objective_order: { _is_null: false } }, order_by: { objective_order: asc }) {
+      key
+    }
+  }
+}
+
+query CliRuns(
+  $projectId: String!
+  $experimentId: String!
+  $after: String!
+  $limit: Int!
+  $metricKeys: [String!]!
+) {
+  runs(
+    where: {
+      project_id: { _eq: $projectId }
+      experiment_id: { _eq: $experimentId }
+      id: { _gt: $after }
+    }
+    order_by: { id: asc }
+    limit: $limit
+  ) {
+    id
+    status
+    finalizationState: finalization_state
+    startedAt: started_at
+    finishedAt: finished_at
+    optimization {
+      number
+      resultsAcceptedAt: results_accepted_at
+    }
+    finalMetrics: final_metrics(where: { key: { _in: $metricKeys } }) {
+      key
+      value
+    }
+    metrics(where: { kind: { _eq: "scalar" }, key: { _in: $metricKeys } }) {
+      key
+      aggregation
+      lastValue: last_value
+      minValue: min_value
+      maxValue: max_value
+      meanValue: mean_value
+      explicitValue: explicit_value
+    }
+  }
+}
