@@ -23,8 +23,8 @@ func (a *App) logsCommand() *cobra.Command {
 			return failure(2, "--limit must be between 1 and 10000")
 		}
 		duration, err := time.ParseDuration(since)
-		if err != nil || duration <= 0 {
-			return failure(2, "--since must be a positive duration, such as 30m or 24h")
+		if err != nil || duration < time.Millisecond {
+			return failure(2, "--since must be a duration of at least 1ms, such as 30m or 24h")
 		}
 		client, ctx, source, err := a.authorized(cmd.Context())
 		if err != nil {
@@ -100,6 +100,13 @@ func maxTime(a, b time.Time) time.Time {
 }
 
 func (a *App) logWindow(ctx context.Context, client *api.Client, exp *api.ExperimentDetails, runID string, start, end time.Time, limit int, source CredentialSource) ([]api.LogEntry, error) {
+	// DateTimeISO is parsed as a JavaScript Date by the API. Align both
+	// boundaries to its millisecond precision before comparing windowEnd.
+	start = start.Truncate(time.Millisecond)
+	end = end.Truncate(time.Millisecond)
+	if !start.Before(end) {
+		return nil, failure(2, "Log window must span at least one millisecond")
+	}
 	entries := []api.LogEntry{}
 	for offset := 0; ; {
 		pageSize := min(100, limit-offset)
