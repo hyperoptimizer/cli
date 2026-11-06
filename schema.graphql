@@ -163,6 +163,8 @@ type Mutation {
   startCliLogin: CliLoginAttempt!
   pollCliLogin(input: CliLoginPollInput!): CliLoginPoll!
   createCliRegistryCredentials: CliRegistryCredential!
+  pauseExperiment(input: ExperimentCommandInput!): ExperimentIntent!
+  resumeExperiment(input: ExperimentCommandInput!): ExperimentIntent!
 }
 
 type Query {
@@ -209,6 +211,7 @@ type Query {
   ): [runs!]!
   cliIdentity: CliIdentity!
   validateCliConfiguration(input: CliConfigurationInput!): CliConfiguration!
+  logs(input: LogsInput!): LogPage!
 }
 
 """
@@ -691,6 +694,8 @@ input experiment_kind_comparison_exp {
 
 type experiment_metrics {
   key: String!
+  direction: objective_direction
+  objective_order: Int
 }
 
 input experiment_metrics_aggregate_bool_exp {
@@ -2143,6 +2148,21 @@ type experiments {
   """An object relationship"""
   optimization: optimization_experiments
   project_id: String!
+  description: String
+  created_at: timestamptz!
+  """An array relationship"""
+  parameters(
+    """distinct select on columns"""
+    distinct_on: [experiment_parameters_select_column!]
+    """limit the number of rows returned"""
+    limit: Int
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+    """sort the rows by one or more columns"""
+    order_by: [experiment_parameters_order_by!]
+    """filter the rows returned"""
+    where: experiment_parameters_bool_exp
+  ): [experiment_parameters!]!
 }
 
 input experiments_aggregate_bool_exp {
@@ -2773,6 +2793,13 @@ type optimization_experiments {
   desired_status: optimization_desired_status!
   max_trial_count: Int!
   status: optimization_status!
+  docker_image(
+    """JSON select path"""
+    path: String
+  ): jsonb
+  parallel_trial_count: Int!
+  algorithm: algorithm!
+  command_template: String
 }
 
 input optimization_experiments_aggregate_bool_exp {
@@ -5027,6 +5054,25 @@ type runs {
   optimization: optimization_trials
   started_at: timestamptz
   status: run_status!
+  project_id: String!
+  experiment_id: String!
+  name: String!
+  created_at: timestamptz!
+  finalized_at: timestamptz
+  last_error: String
+  """An array relationship"""
+  parameters(
+    """distinct select on columns"""
+    distinct_on: [run_parameters_select_column!]
+    """limit the number of rows returned"""
+    limit: Int
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+    """sort the rows by one or more columns"""
+    order_by: [run_parameters_order_by!]
+    """filter the rows returned"""
+    where: run_parameters_bool_exp
+  ): [run_parameters!]!
 }
 
 input runs_aggregate_bool_exp {
@@ -5372,4 +5418,91 @@ input users_order_by {
   id: order_by
   memberships_aggregate: memberships_aggregate_order_by
   name: order_by
+}
+
+"""
+columns and relationships of "run_parameters"
+"""
+type run_parameters {
+  key: String!
+  number_value: float8
+  string_value: String
+  boolean_value: Boolean
+}
+
+input LogsInput {
+  projectId: ULID
+  experimentId: ULID
+  runId: ULID
+  start: DateTimeISO
+  end: DateTimeISO
+  limit: Int = 100 @constraint(min: 1, max: 100)
+  offset: Int = 0 @constraint(min: 0, max: 9999)
+}
+
+type LogPage {
+  windowEnd: DateTimeISO!
+  elapsedMicros: Float!
+  totalHits: Float!
+  hits: [LogEntry!]!
+}
+
+"""Ordering options when selecting data from "run_parameters"."""
+input run_parameters_order_by {
+  boolean_value: order_by
+  key: order_by
+  number_value: order_by
+  run: runs_order_by
+  run_id: order_by
+  string_value: order_by
+  value_kind: order_by
+}
+
+type LogEntry {
+  timestamp: String!
+  message: String!
+  level: String
+  podName: String
+  namespace: String
+  container: String
+  trialId: ULID
+  experimentId: ULID
+  orgId: String
+  kubernetes: LogKubernetes
+}
+
+type LogKubernetes {
+  podName: String
+  namespaceName: String
+  containerName: String
+}
+
+"""
+columns and relationships of "experiment_parameters"
+"""
+type experiment_parameters {
+  choices(
+    """JSON select path"""
+    path: String
+  ): jsonb
+  key: String!
+  kind: parameter_kind!
+  logarithmic: Boolean!
+  max_value: float8
+  min_value: float8
+  step_value: float8
+}
+
+"""Ordering options when selecting data from "experiment_parameters"."""
+input experiment_parameters_order_by {
+  choices: order_by
+  display_name: order_by
+  experiment: experiments_order_by
+  experiment_id: order_by
+  key: order_by
+  kind: order_by
+  logarithmic: order_by
+  max_value: order_by
+  min_value: order_by
+  step_value: order_by
 }

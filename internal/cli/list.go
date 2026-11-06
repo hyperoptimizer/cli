@@ -1,10 +1,6 @@
 package cli
 
 import (
-	"fmt"
-	"strings"
-	"text/tabwriter"
-
 	"github.com/hyperoptimizer/cli/internal/api"
 	"github.com/spf13/cobra"
 )
@@ -36,18 +32,9 @@ func collectPages[T any](fetch func(string, int) ([]T, error), id func(T) string
 	}
 }
 
-func listTable(lines []string) string {
-	var out strings.Builder
-	w := tabwriter.NewWriter(&out, 0, 4, 2, ' ', 0)
-	for _, line := range lines {
-		fmt.Fprintln(w, line)
-	}
-	w.Flush()
-	return strings.TrimSpace(out.String())
-}
-
 func (a *App) projectCommand() *cobra.Command {
 	root := &cobra.Command{Use: "project", Aliases: []string{"projects"}, Short: "Browse projects in the selected organization"}
+	root.AddCommand(a.createProjectCommand())
 	root.AddCommand(&cobra.Command{Use: "list", Short: "List all projects in the selected organization", Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, _ []string) error {
 		client, ctx, source, err := a.authorized(cmd.Context())
 		if err != nil {
@@ -59,21 +46,19 @@ func (a *App) projectCommand() *cobra.Command {
 		if err != nil {
 			return apiError(err, source)
 		}
-		lines := []string{"NAME\tID"}
+		tableRows := [][]string{}
 		for _, row := range rows {
-			lines = append(lines, fmt.Sprintf("%s\t%s", row.Name, row.Id))
+			tableRows = append(tableRows, []string{row.Name, row.Id})
 		}
 		message := "No projects in this organization."
-		if len(rows) > 0 {
-			message = listTable(lines)
-		}
-		return a.event("projects", map[string]any{"projects": rows}, message)
+		return a.listOutput("projects", map[string]any{"projects": rows}, []string{"NAME", "ID"}, tableRows, message)
 	}})
 	return root
 }
 
 func (a *App) experimentCommand() *cobra.Command {
 	root := &cobra.Command{Use: "experiment", Aliases: []string{"experiments"}, Short: "Browse experiments in the selected organization"}
+	root.AddCommand(a.experimentShowCommand(), a.experimentControlCommand("pause"), a.experimentControlCommand("resume"), a.experimentBestCommand())
 	root.AddCommand(&cobra.Command{Use: "list", Short: "List all experiments, optionally filtered by --project <id>", Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, _ []string) error {
 		client, ctx, source, err := a.authorized(cmd.Context())
 		if err != nil {
@@ -85,22 +70,19 @@ func (a *App) experimentCommand() *cobra.Command {
 		if err != nil {
 			return apiError(err, source)
 		}
-		lines := []string{"NAME\tSTATUS\tKIND\tPROJECT\tID"}
+		tableRows := [][]string{}
 		for _, row := range rows {
 			status := "—"
 			if row.Optimization != nil {
 				status = row.Optimization.Status
 			}
-			lines = append(lines, fmt.Sprintf("%s\t%s\t%s\t%s\t%s", row.Name, status, row.Kind, row.ProjectId, row.Id))
+			tableRows = append(tableRows, []string{row.Name, status, row.Kind, row.ProjectId, row.Id})
 		}
 		message := "No experiments in this organization."
 		if a.Project != "" {
 			message = "No experiments visible for this project in the selected organization."
 		}
-		if len(rows) > 0 {
-			message = listTable(lines)
-		}
-		return a.event("experiments", map[string]any{"experiments": rows}, message)
+		return a.listOutput("experiments", map[string]any{"experiments": rows}, []string{"NAME", "STATUS", "KIND", "PROJECT", "ID"}, tableRows, message)
 	}})
 	return root
 }

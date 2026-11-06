@@ -91,6 +91,175 @@ func (v *CliCreateRegistryCredentialsResponse) GetCreateCliRegistryCredentials()
 	return v.CreateCliRegistryCredentials
 }
 
+// CliExperimentDetailsExperiments includes the requested fields of the GraphQL type experiments.
+type CliExperimentDetailsExperiments struct {
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	Kind        string    `json:"kind"`
+	ProjectId   string    `json:"projectId"`
+	Description *string   `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
+	// An object relationship
+	Optimization *CliExperimentDetailsExperimentsOptimizationOptimization_experiments `json:"optimization"`
+	// An array relationship
+	Parameters []CliExperimentDetailsExperimentsParametersExperiment_parameters `json:"parameters"`
+	// An array relationship
+	Metrics []CliExperimentDetailsExperimentsMetricsExperiment_metrics `json:"metrics"`
+}
+
+// GetId returns CliExperimentDetailsExperiments.Id, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetId() string { return v.Id }
+
+// GetName returns CliExperimentDetailsExperiments.Name, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetName() string { return v.Name }
+
+// GetKind returns CliExperimentDetailsExperiments.Kind, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetKind() string { return v.Kind }
+
+// GetProjectId returns CliExperimentDetailsExperiments.ProjectId, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetProjectId() string { return v.ProjectId }
+
+// GetDescription returns CliExperimentDetailsExperiments.Description, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetDescription() *string { return v.Description }
+
+// GetCreatedAt returns CliExperimentDetailsExperiments.CreatedAt, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetCreatedAt() time.Time { return v.CreatedAt }
+
+// GetOptimization returns CliExperimentDetailsExperiments.Optimization, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetOptimization() *CliExperimentDetailsExperimentsOptimizationOptimization_experiments {
+	return v.Optimization
+}
+
+// GetParameters returns CliExperimentDetailsExperiments.Parameters, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetParameters() []CliExperimentDetailsExperimentsParametersExperiment_parameters {
+	return v.Parameters
+}
+
+// GetMetrics returns CliExperimentDetailsExperiments.Metrics, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperiments) GetMetrics() []CliExperimentDetailsExperimentsMetricsExperiment_metrics {
+	return v.Metrics
+}
+
+// CliExperimentDetailsExperimentsMetricsExperiment_metrics includes the requested fields of the GraphQL type experiment_metrics.
+type CliExperimentDetailsExperimentsMetricsExperiment_metrics struct {
+	Key       string  `json:"key"`
+	Direction *string `json:"direction"`
+}
+
+// GetKey returns CliExperimentDetailsExperimentsMetricsExperiment_metrics.Key, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsMetricsExperiment_metrics) GetKey() string { return v.Key }
+
+// GetDirection returns CliExperimentDetailsExperimentsMetricsExperiment_metrics.Direction, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsMetricsExperiment_metrics) GetDirection() *string {
+	return v.Direction
+}
+
+// CliExperimentDetailsExperimentsOptimizationOptimization_experiments includes the requested fields of the GraphQL type optimization_experiments.
+type CliExperimentDetailsExperimentsOptimizationOptimization_experiments struct {
+	Status             string           `json:"status"`
+	DesiredStatus      string           `json:"desiredStatus"`
+	MaxTrialCount      int              `json:"maxTrialCount"`
+	ParallelTrialCount int              `json:"parallelTrialCount"`
+	DockerImage        *json.RawMessage `json:"dockerImage"`
+	Algorithm          string           `json:"algorithm"`
+	CommandTemplate    *string          `json:"commandTemplate"`
+}
+
+// GetStatus returns CliExperimentDetailsExperimentsOptimizationOptimization_experiments.Status, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsOptimizationOptimization_experiments) GetStatus() string {
+	return v.Status
+}
+
+// GetDesiredStatus returns CliExperimentDetailsExperimentsOptimizationOptimization_experiments.DesiredStatus, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsOptimizationOptimization_experiments) GetDesiredStatus() string {
+	return v.DesiredStatus
+}
+
+// GetMaxTrialCount returns CliExperimentDetailsExperimentsOptimizationOptimization_experiments.MaxTrialCount, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsOptimizationOptimization_experiments) GetMaxTrialCount() int {
+	return v.MaxTrialCount
+}
+
+// GetParallelTrialCount returns CliExperimentDetailsExperimentsOptimizationOptimization_experiments.ParallelTrialCount, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsOptimizationOptimization_experiments) GetParallelTrialCount() int {
+	return v.ParallelTrialCount
+}
+
+// GetDockerImage returns CliExperimentDetailsExperimentsOptimizationOptimization_experiments.DockerImage, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsOptimizationOptimization_experiments) GetDockerImage() *json.RawMessage {
+	return v.DockerImage
+}
+
+// GetAlgorithm returns CliExperimentDetailsExperimentsOptimizationOptimization_experiments.Algorithm, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsOptimizationOptimization_experiments) GetAlgorithm() string {
+	return v.Algorithm
+}
+
+// GetCommandTemplate returns CliExperimentDetailsExperimentsOptimizationOptimization_experiments.CommandTemplate, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsOptimizationOptimization_experiments) GetCommandTemplate() *string {
+	return v.CommandTemplate
+}
+
+// CliExperimentDetailsExperimentsParametersExperiment_parameters includes the requested fields of the GraphQL type experiment_parameters.
+// The GraphQL type's documentation follows.
+//
+// columns and relationships of "experiment_parameters"
+type CliExperimentDetailsExperimentsParametersExperiment_parameters struct {
+	Key         string           `json:"key"`
+	Kind        string           `json:"kind"`
+	MinValue    *string          `json:"minValue"`
+	MaxValue    *string          `json:"maxValue"`
+	StepValue   *string          `json:"stepValue"`
+	Logarithmic bool             `json:"logarithmic"`
+	Choices     *json.RawMessage `json:"choices"`
+}
+
+// GetKey returns CliExperimentDetailsExperimentsParametersExperiment_parameters.Key, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsParametersExperiment_parameters) GetKey() string {
+	return v.Key
+}
+
+// GetKind returns CliExperimentDetailsExperimentsParametersExperiment_parameters.Kind, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsParametersExperiment_parameters) GetKind() string {
+	return v.Kind
+}
+
+// GetMinValue returns CliExperimentDetailsExperimentsParametersExperiment_parameters.MinValue, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsParametersExperiment_parameters) GetMinValue() *string {
+	return v.MinValue
+}
+
+// GetMaxValue returns CliExperimentDetailsExperimentsParametersExperiment_parameters.MaxValue, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsParametersExperiment_parameters) GetMaxValue() *string {
+	return v.MaxValue
+}
+
+// GetStepValue returns CliExperimentDetailsExperimentsParametersExperiment_parameters.StepValue, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsParametersExperiment_parameters) GetStepValue() *string {
+	return v.StepValue
+}
+
+// GetLogarithmic returns CliExperimentDetailsExperimentsParametersExperiment_parameters.Logarithmic, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsParametersExperiment_parameters) GetLogarithmic() bool {
+	return v.Logarithmic
+}
+
+// GetChoices returns CliExperimentDetailsExperimentsParametersExperiment_parameters.Choices, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsExperimentsParametersExperiment_parameters) GetChoices() *json.RawMessage {
+	return v.Choices
+}
+
+// CliExperimentDetailsResponse is returned by CliExperimentDetails on success.
+type CliExperimentDetailsResponse struct {
+	// An array relationship
+	Experiments []CliExperimentDetailsExperiments `json:"experiments"`
+}
+
+// GetExperiments returns CliExperimentDetailsResponse.Experiments, and is useful for accessing the field via an interface.
+func (v *CliExperimentDetailsResponse) GetExperiments() []CliExperimentDetailsExperiments {
+	return v.Experiments
+}
+
 // CliExperimentExperiments includes the requested fields of the GraphQL type experiments.
 type CliExperimentExperiments struct {
 	Id   string `json:"id"`
@@ -415,6 +584,96 @@ var AllCliLoginStatus = []CliLoginStatus{
 	CliLoginStatusSlowDown,
 }
 
+// CliLogsLogsLogPage includes the requested fields of the GraphQL type LogPage.
+type CliLogsLogsLogPage struct {
+	WindowEnd time.Time                        `json:"windowEnd"`
+	TotalHits float64                          `json:"totalHits"`
+	Hits      []CliLogsLogsLogPageHitsLogEntry `json:"hits"`
+}
+
+// GetWindowEnd returns CliLogsLogsLogPage.WindowEnd, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPage) GetWindowEnd() time.Time { return v.WindowEnd }
+
+// GetTotalHits returns CliLogsLogsLogPage.TotalHits, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPage) GetTotalHits() float64 { return v.TotalHits }
+
+// GetHits returns CliLogsLogsLogPage.Hits, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPage) GetHits() []CliLogsLogsLogPageHitsLogEntry { return v.Hits }
+
+// CliLogsLogsLogPageHitsLogEntry includes the requested fields of the GraphQL type LogEntry.
+type CliLogsLogsLogPageHitsLogEntry struct {
+	Timestamp    string  `json:"timestamp"`
+	Message      string  `json:"message"`
+	Level        *string `json:"level"`
+	PodName      *string `json:"podName"`
+	Namespace    *string `json:"namespace"`
+	Container    *string `json:"container"`
+	TrialId      *string `json:"trialId"`
+	ExperimentId *string `json:"experimentId"`
+	OrgId        *string `json:"orgId"`
+}
+
+// GetTimestamp returns CliLogsLogsLogPageHitsLogEntry.Timestamp, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetTimestamp() string { return v.Timestamp }
+
+// GetMessage returns CliLogsLogsLogPageHitsLogEntry.Message, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetMessage() string { return v.Message }
+
+// GetLevel returns CliLogsLogsLogPageHitsLogEntry.Level, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetLevel() *string { return v.Level }
+
+// GetPodName returns CliLogsLogsLogPageHitsLogEntry.PodName, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetPodName() *string { return v.PodName }
+
+// GetNamespace returns CliLogsLogsLogPageHitsLogEntry.Namespace, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetNamespace() *string { return v.Namespace }
+
+// GetContainer returns CliLogsLogsLogPageHitsLogEntry.Container, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetContainer() *string { return v.Container }
+
+// GetTrialId returns CliLogsLogsLogPageHitsLogEntry.TrialId, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetTrialId() *string { return v.TrialId }
+
+// GetExperimentId returns CliLogsLogsLogPageHitsLogEntry.ExperimentId, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetExperimentId() *string { return v.ExperimentId }
+
+// GetOrgId returns CliLogsLogsLogPageHitsLogEntry.OrgId, and is useful for accessing the field via an interface.
+func (v *CliLogsLogsLogPageHitsLogEntry) GetOrgId() *string { return v.OrgId }
+
+// CliLogsResponse is returned by CliLogs on success.
+type CliLogsResponse struct {
+	Logs CliLogsLogsLogPage `json:"logs"`
+}
+
+// GetLogs returns CliLogsResponse.Logs, and is useful for accessing the field via an interface.
+func (v *CliLogsResponse) GetLogs() CliLogsLogsLogPage { return v.Logs }
+
+// CliPausePauseExperimentExperimentIntent includes the requested fields of the GraphQL type ExperimentIntent.
+type CliPausePauseExperimentExperimentIntent struct {
+	Id            string `json:"id"`
+	DesiredStatus string `json:"desiredStatus"`
+	Success       bool   `json:"success"`
+}
+
+// GetId returns CliPausePauseExperimentExperimentIntent.Id, and is useful for accessing the field via an interface.
+func (v *CliPausePauseExperimentExperimentIntent) GetId() string { return v.Id }
+
+// GetDesiredStatus returns CliPausePauseExperimentExperimentIntent.DesiredStatus, and is useful for accessing the field via an interface.
+func (v *CliPausePauseExperimentExperimentIntent) GetDesiredStatus() string { return v.DesiredStatus }
+
+// GetSuccess returns CliPausePauseExperimentExperimentIntent.Success, and is useful for accessing the field via an interface.
+func (v *CliPausePauseExperimentExperimentIntent) GetSuccess() bool { return v.Success }
+
+// CliPauseResponse is returned by CliPause on success.
+type CliPauseResponse struct {
+	PauseExperiment CliPausePauseExperimentExperimentIntent `json:"pauseExperiment"`
+}
+
+// GetPauseExperiment returns CliPauseResponse.PauseExperiment, and is useful for accessing the field via an interface.
+func (v *CliPauseResponse) GetPauseExperiment() CliPausePauseExperimentExperimentIntent {
+	return v.PauseExperiment
+}
+
 // CliPollLoginPollCliLoginCliLoginPoll includes the requested fields of the GraphQL type CliLoginPoll.
 type CliPollLoginPollCliLoginCliLoginPoll struct {
 	Status CliLoginStatus `json:"status"`
@@ -548,6 +807,340 @@ type CliProjectsResponse struct {
 
 // GetProjects returns CliProjectsResponse.Projects, and is useful for accessing the field via an interface.
 func (v *CliProjectsResponse) GetProjects() []CliProjectsProjects { return v.Projects }
+
+// CliResumeResponse is returned by CliResume on success.
+type CliResumeResponse struct {
+	ResumeExperiment CliResumeResumeExperimentExperimentIntent `json:"resumeExperiment"`
+}
+
+// GetResumeExperiment returns CliResumeResponse.ResumeExperiment, and is useful for accessing the field via an interface.
+func (v *CliResumeResponse) GetResumeExperiment() CliResumeResumeExperimentExperimentIntent {
+	return v.ResumeExperiment
+}
+
+// CliResumeResumeExperimentExperimentIntent includes the requested fields of the GraphQL type ExperimentIntent.
+type CliResumeResumeExperimentExperimentIntent struct {
+	Id            string `json:"id"`
+	DesiredStatus string `json:"desiredStatus"`
+	Success       bool   `json:"success"`
+}
+
+// GetId returns CliResumeResumeExperimentExperimentIntent.Id, and is useful for accessing the field via an interface.
+func (v *CliResumeResumeExperimentExperimentIntent) GetId() string { return v.Id }
+
+// GetDesiredStatus returns CliResumeResumeExperimentExperimentIntent.DesiredStatus, and is useful for accessing the field via an interface.
+func (v *CliResumeResumeExperimentExperimentIntent) GetDesiredStatus() string { return v.DesiredStatus }
+
+// GetSuccess returns CliResumeResumeExperimentExperimentIntent.Success, and is useful for accessing the field via an interface.
+func (v *CliResumeResumeExperimentExperimentIntent) GetSuccess() bool { return v.Success }
+
+// CliRunDetails includes the GraphQL fields of runs requested by the fragment CliRunDetails.
+type CliRunDetails struct {
+	Id                string     `json:"id"`
+	Name              string     `json:"name"`
+	ProjectId         string     `json:"projectId"`
+	ExperimentId      string     `json:"experimentId"`
+	Status            string     `json:"status"`
+	FinalizationState string     `json:"finalizationState"`
+	CreatedAt         time.Time  `json:"createdAt"`
+	StartedAt         *time.Time `json:"startedAt"`
+	FinishedAt        *time.Time `json:"finishedAt"`
+	FinalizedAt       *time.Time `json:"finalizedAt"`
+	LastError         *string    `json:"lastError"`
+	// An object relationship
+	Optimization *CliRunDetailsOptimizationOptimization_trials `json:"optimization"`
+	// An array relationship
+	Parameters []CliRunDetailsParametersRun_parameters `json:"parameters"`
+	// An array relationship
+	FinalMetrics []CliRunDetailsFinalMetricsRun_final_metrics `json:"finalMetrics"`
+	// An array relationship
+	Metrics []CliRunDetailsMetricsRun_metrics `json:"metrics"`
+}
+
+// GetId returns CliRunDetails.Id, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetId() string { return v.Id }
+
+// GetName returns CliRunDetails.Name, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetName() string { return v.Name }
+
+// GetProjectId returns CliRunDetails.ProjectId, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetProjectId() string { return v.ProjectId }
+
+// GetExperimentId returns CliRunDetails.ExperimentId, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetExperimentId() string { return v.ExperimentId }
+
+// GetStatus returns CliRunDetails.Status, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetStatus() string { return v.Status }
+
+// GetFinalizationState returns CliRunDetails.FinalizationState, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetFinalizationState() string { return v.FinalizationState }
+
+// GetCreatedAt returns CliRunDetails.CreatedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetCreatedAt() time.Time { return v.CreatedAt }
+
+// GetStartedAt returns CliRunDetails.StartedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetStartedAt() *time.Time { return v.StartedAt }
+
+// GetFinishedAt returns CliRunDetails.FinishedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetFinishedAt() *time.Time { return v.FinishedAt }
+
+// GetFinalizedAt returns CliRunDetails.FinalizedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetFinalizedAt() *time.Time { return v.FinalizedAt }
+
+// GetLastError returns CliRunDetails.LastError, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetLastError() *string { return v.LastError }
+
+// GetOptimization returns CliRunDetails.Optimization, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetOptimization() *CliRunDetailsOptimizationOptimization_trials {
+	return v.Optimization
+}
+
+// GetParameters returns CliRunDetails.Parameters, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetParameters() []CliRunDetailsParametersRun_parameters { return v.Parameters }
+
+// GetFinalMetrics returns CliRunDetails.FinalMetrics, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetFinalMetrics() []CliRunDetailsFinalMetricsRun_final_metrics {
+	return v.FinalMetrics
+}
+
+// GetMetrics returns CliRunDetails.Metrics, and is useful for accessing the field via an interface.
+func (v *CliRunDetails) GetMetrics() []CliRunDetailsMetricsRun_metrics { return v.Metrics }
+
+// CliRunDetailsFinalMetricsRun_final_metrics includes the requested fields of the GraphQL type run_final_metrics.
+type CliRunDetailsFinalMetricsRun_final_metrics struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
+// GetKey returns CliRunDetailsFinalMetricsRun_final_metrics.Key, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsFinalMetricsRun_final_metrics) GetKey() string { return v.Key }
+
+// GetValue returns CliRunDetailsFinalMetricsRun_final_metrics.Value, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsFinalMetricsRun_final_metrics) GetValue() string { return v.Value }
+
+// CliRunDetailsMetricsRun_metrics includes the requested fields of the GraphQL type run_metrics.
+type CliRunDetailsMetricsRun_metrics struct {
+	Key           string  `json:"key"`
+	Aggregation   *string `json:"aggregation"`
+	LastValue     *string `json:"lastValue"`
+	MinValue      *string `json:"minValue"`
+	MaxValue      *string `json:"maxValue"`
+	MeanValue     *string `json:"meanValue"`
+	ExplicitValue *string `json:"explicitValue"`
+}
+
+// GetKey returns CliRunDetailsMetricsRun_metrics.Key, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsMetricsRun_metrics) GetKey() string { return v.Key }
+
+// GetAggregation returns CliRunDetailsMetricsRun_metrics.Aggregation, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsMetricsRun_metrics) GetAggregation() *string { return v.Aggregation }
+
+// GetLastValue returns CliRunDetailsMetricsRun_metrics.LastValue, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsMetricsRun_metrics) GetLastValue() *string { return v.LastValue }
+
+// GetMinValue returns CliRunDetailsMetricsRun_metrics.MinValue, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsMetricsRun_metrics) GetMinValue() *string { return v.MinValue }
+
+// GetMaxValue returns CliRunDetailsMetricsRun_metrics.MaxValue, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsMetricsRun_metrics) GetMaxValue() *string { return v.MaxValue }
+
+// GetMeanValue returns CliRunDetailsMetricsRun_metrics.MeanValue, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsMetricsRun_metrics) GetMeanValue() *string { return v.MeanValue }
+
+// GetExplicitValue returns CliRunDetailsMetricsRun_metrics.ExplicitValue, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsMetricsRun_metrics) GetExplicitValue() *string { return v.ExplicitValue }
+
+// CliRunDetailsOptimizationOptimization_trials includes the requested fields of the GraphQL type optimization_trials.
+type CliRunDetailsOptimizationOptimization_trials struct {
+	Number            int        `json:"number"`
+	ResultsAcceptedAt *time.Time `json:"resultsAcceptedAt"`
+}
+
+// GetNumber returns CliRunDetailsOptimizationOptimization_trials.Number, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsOptimizationOptimization_trials) GetNumber() int { return v.Number }
+
+// GetResultsAcceptedAt returns CliRunDetailsOptimizationOptimization_trials.ResultsAcceptedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsOptimizationOptimization_trials) GetResultsAcceptedAt() *time.Time {
+	return v.ResultsAcceptedAt
+}
+
+// CliRunDetailsPageResponse is returned by CliRunDetailsPage on success.
+type CliRunDetailsPageResponse struct {
+	// An array relationship
+	Runs []CliRunDetailsPageRuns `json:"runs"`
+}
+
+// GetRuns returns CliRunDetailsPageResponse.Runs, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageResponse) GetRuns() []CliRunDetailsPageRuns { return v.Runs }
+
+// CliRunDetailsPageRuns includes the requested fields of the GraphQL type runs.
+type CliRunDetailsPageRuns struct {
+	CliRunDetails `json:"-"`
+}
+
+// GetId returns CliRunDetailsPageRuns.Id, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetId() string { return v.CliRunDetails.Id }
+
+// GetName returns CliRunDetailsPageRuns.Name, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetName() string { return v.CliRunDetails.Name }
+
+// GetProjectId returns CliRunDetailsPageRuns.ProjectId, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetProjectId() string { return v.CliRunDetails.ProjectId }
+
+// GetExperimentId returns CliRunDetailsPageRuns.ExperimentId, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetExperimentId() string { return v.CliRunDetails.ExperimentId }
+
+// GetStatus returns CliRunDetailsPageRuns.Status, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetStatus() string { return v.CliRunDetails.Status }
+
+// GetFinalizationState returns CliRunDetailsPageRuns.FinalizationState, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetFinalizationState() string {
+	return v.CliRunDetails.FinalizationState
+}
+
+// GetCreatedAt returns CliRunDetailsPageRuns.CreatedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetCreatedAt() time.Time { return v.CliRunDetails.CreatedAt }
+
+// GetStartedAt returns CliRunDetailsPageRuns.StartedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetStartedAt() *time.Time { return v.CliRunDetails.StartedAt }
+
+// GetFinishedAt returns CliRunDetailsPageRuns.FinishedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetFinishedAt() *time.Time { return v.CliRunDetails.FinishedAt }
+
+// GetFinalizedAt returns CliRunDetailsPageRuns.FinalizedAt, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetFinalizedAt() *time.Time { return v.CliRunDetails.FinalizedAt }
+
+// GetLastError returns CliRunDetailsPageRuns.LastError, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetLastError() *string { return v.CliRunDetails.LastError }
+
+// GetOptimization returns CliRunDetailsPageRuns.Optimization, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetOptimization() *CliRunDetailsOptimizationOptimization_trials {
+	return v.CliRunDetails.Optimization
+}
+
+// GetParameters returns CliRunDetailsPageRuns.Parameters, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetParameters() []CliRunDetailsParametersRun_parameters {
+	return v.CliRunDetails.Parameters
+}
+
+// GetFinalMetrics returns CliRunDetailsPageRuns.FinalMetrics, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetFinalMetrics() []CliRunDetailsFinalMetricsRun_final_metrics {
+	return v.CliRunDetails.FinalMetrics
+}
+
+// GetMetrics returns CliRunDetailsPageRuns.Metrics, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsPageRuns) GetMetrics() []CliRunDetailsMetricsRun_metrics {
+	return v.CliRunDetails.Metrics
+}
+
+func (v *CliRunDetailsPageRuns) UnmarshalJSON(b []byte) error {
+
+	if string(b) == "null" {
+		return nil
+	}
+
+	var firstPass struct {
+		*CliRunDetailsPageRuns
+		graphql.NoUnmarshalJSON
+	}
+	firstPass.CliRunDetailsPageRuns = v
+
+	err := json.Unmarshal(b, &firstPass)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(
+		b, &v.CliRunDetails)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type __premarshalCliRunDetailsPageRuns struct {
+	Id string `json:"id"`
+
+	Name string `json:"name"`
+
+	ProjectId string `json:"projectId"`
+
+	ExperimentId string `json:"experimentId"`
+
+	Status string `json:"status"`
+
+	FinalizationState string `json:"finalizationState"`
+
+	CreatedAt time.Time `json:"createdAt"`
+
+	StartedAt *time.Time `json:"startedAt"`
+
+	FinishedAt *time.Time `json:"finishedAt"`
+
+	FinalizedAt *time.Time `json:"finalizedAt"`
+
+	LastError *string `json:"lastError"`
+
+	Optimization *CliRunDetailsOptimizationOptimization_trials `json:"optimization"`
+
+	Parameters []CliRunDetailsParametersRun_parameters `json:"parameters"`
+
+	FinalMetrics []CliRunDetailsFinalMetricsRun_final_metrics `json:"finalMetrics"`
+
+	Metrics []CliRunDetailsMetricsRun_metrics `json:"metrics"`
+}
+
+func (v *CliRunDetailsPageRuns) MarshalJSON() ([]byte, error) {
+	premarshaled, err := v.__premarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(premarshaled)
+}
+
+func (v *CliRunDetailsPageRuns) __premarshalJSON() (*__premarshalCliRunDetailsPageRuns, error) {
+	var retval __premarshalCliRunDetailsPageRuns
+
+	retval.Id = v.CliRunDetails.Id
+	retval.Name = v.CliRunDetails.Name
+	retval.ProjectId = v.CliRunDetails.ProjectId
+	retval.ExperimentId = v.CliRunDetails.ExperimentId
+	retval.Status = v.CliRunDetails.Status
+	retval.FinalizationState = v.CliRunDetails.FinalizationState
+	retval.CreatedAt = v.CliRunDetails.CreatedAt
+	retval.StartedAt = v.CliRunDetails.StartedAt
+	retval.FinishedAt = v.CliRunDetails.FinishedAt
+	retval.FinalizedAt = v.CliRunDetails.FinalizedAt
+	retval.LastError = v.CliRunDetails.LastError
+	retval.Optimization = v.CliRunDetails.Optimization
+	retval.Parameters = v.CliRunDetails.Parameters
+	retval.FinalMetrics = v.CliRunDetails.FinalMetrics
+	retval.Metrics = v.CliRunDetails.Metrics
+	return &retval, nil
+}
+
+// CliRunDetailsParametersRun_parameters includes the requested fields of the GraphQL type run_parameters.
+// The GraphQL type's documentation follows.
+//
+// columns and relationships of "run_parameters"
+type CliRunDetailsParametersRun_parameters struct {
+	Key          string  `json:"key"`
+	NumberValue  *string `json:"numberValue"`
+	StringValue  *string `json:"stringValue"`
+	BooleanValue *bool   `json:"booleanValue"`
+}
+
+// GetKey returns CliRunDetailsParametersRun_parameters.Key, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsParametersRun_parameters) GetKey() string { return v.Key }
+
+// GetNumberValue returns CliRunDetailsParametersRun_parameters.NumberValue, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsParametersRun_parameters) GetNumberValue() *string { return v.NumberValue }
+
+// GetStringValue returns CliRunDetailsParametersRun_parameters.StringValue, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsParametersRun_parameters) GetStringValue() *string { return v.StringValue }
+
+// GetBooleanValue returns CliRunDetailsParametersRun_parameters.BooleanValue, and is useful for accessing the field via an interface.
+func (v *CliRunDetailsParametersRun_parameters) GetBooleanValue() *bool { return v.BooleanValue }
 
 // CliRunsResponse is returned by CliRuns on success.
 type CliRunsResponse struct {
@@ -796,6 +1389,37 @@ var AllInitialExperimentIntent = []InitialExperimentIntent{
 	InitialExperimentIntentPaused,
 }
 
+type LogsInput struct {
+	ProjectId    *string    `json:"projectId"`
+	ExperimentId *string    `json:"experimentId"`
+	RunId        *string    `json:"runId"`
+	Start        *time.Time `json:"start"`
+	End          *time.Time `json:"end"`
+	Limit        *int       `json:"limit"`
+	Offset       *int       `json:"offset"`
+}
+
+// GetProjectId returns LogsInput.ProjectId, and is useful for accessing the field via an interface.
+func (v *LogsInput) GetProjectId() *string { return v.ProjectId }
+
+// GetExperimentId returns LogsInput.ExperimentId, and is useful for accessing the field via an interface.
+func (v *LogsInput) GetExperimentId() *string { return v.ExperimentId }
+
+// GetRunId returns LogsInput.RunId, and is useful for accessing the field via an interface.
+func (v *LogsInput) GetRunId() *string { return v.RunId }
+
+// GetStart returns LogsInput.Start, and is useful for accessing the field via an interface.
+func (v *LogsInput) GetStart() *time.Time { return v.Start }
+
+// GetEnd returns LogsInput.End, and is useful for accessing the field via an interface.
+func (v *LogsInput) GetEnd() *time.Time { return v.End }
+
+// GetLimit returns LogsInput.Limit, and is useful for accessing the field via an interface.
+func (v *LogsInput) GetLimit() *int { return v.Limit }
+
+// GetOffset returns LogsInput.Offset, and is useful for accessing the field via an interface.
+func (v *LogsInput) GetOffset() *int { return v.Offset }
+
 type ManagedExperimentCreateInput struct {
 	ProjectId     string                   `json:"projectId"`
 	RequestKey    string                   `json:"requestKey"`
@@ -846,6 +1470,14 @@ type __CliCreateProjectInput struct {
 // GetInput returns __CliCreateProjectInput.Input, and is useful for accessing the field via an interface.
 func (v *__CliCreateProjectInput) GetInput() CreateProjectInput { return v.Input }
 
+// __CliExperimentDetailsInput is used internally by genqlient
+type __CliExperimentDetailsInput struct {
+	Where json.RawMessage `json:"where"`
+}
+
+// GetWhere returns __CliExperimentDetailsInput.Where, and is useful for accessing the field via an interface.
+func (v *__CliExperimentDetailsInput) GetWhere() json.RawMessage { return v.Where }
+
 // __CliExperimentInput is used internally by genqlient
 type __CliExperimentInput struct {
 	ProjectId string `json:"projectId"`
@@ -877,6 +1509,22 @@ type __CliLaunchInput struct {
 
 // GetInput returns __CliLaunchInput.Input, and is useful for accessing the field via an interface.
 func (v *__CliLaunchInput) GetInput() ManagedExperimentCreateInput { return v.Input }
+
+// __CliLogsInput is used internally by genqlient
+type __CliLogsInput struct {
+	Input LogsInput `json:"input"`
+}
+
+// GetInput returns __CliLogsInput.Input, and is useful for accessing the field via an interface.
+func (v *__CliLogsInput) GetInput() LogsInput { return v.Input }
+
+// __CliPauseInput is used internally by genqlient
+type __CliPauseInput struct {
+	Input ExperimentCommandInput `json:"input"`
+}
+
+// GetInput returns __CliPauseInput.Input, and is useful for accessing the field via an interface.
+func (v *__CliPauseInput) GetInput() ExperimentCommandInput { return v.Input }
 
 // __CliPollLoginInput is used internally by genqlient
 type __CliPollLoginInput struct {
@@ -913,6 +1561,26 @@ func (v *__CliProjectsInput) GetAfter() string { return v.After }
 
 // GetLimit returns __CliProjectsInput.Limit, and is useful for accessing the field via an interface.
 func (v *__CliProjectsInput) GetLimit() int { return v.Limit }
+
+// __CliResumeInput is used internally by genqlient
+type __CliResumeInput struct {
+	Input ExperimentCommandInput `json:"input"`
+}
+
+// GetInput returns __CliResumeInput.Input, and is useful for accessing the field via an interface.
+func (v *__CliResumeInput) GetInput() ExperimentCommandInput { return v.Input }
+
+// __CliRunDetailsPageInput is used internally by genqlient
+type __CliRunDetailsPageInput struct {
+	Where json.RawMessage `json:"where"`
+	Limit int             `json:"limit"`
+}
+
+// GetWhere returns __CliRunDetailsPageInput.Where, and is useful for accessing the field via an interface.
+func (v *__CliRunDetailsPageInput) GetWhere() json.RawMessage { return v.Where }
+
+// GetLimit returns __CliRunDetailsPageInput.Limit, and is useful for accessing the field via an interface.
+func (v *__CliRunDetailsPageInput) GetLimit() int { return v.Limit }
 
 // __CliRunsInput is used internally by genqlient
 type __CliRunsInput struct {
@@ -1068,6 +1736,67 @@ func CliExperiment(
 	return data_, err_
 }
 
+// The query executed by CliExperimentDetails.
+const CliExperimentDetails_Operation = `
+query CliExperimentDetails ($where: experiments_bool_exp!) {
+	experiments(where: $where, limit: 1) {
+		id
+		name
+		kind
+		projectId: project_id
+		description
+		createdAt: created_at
+		optimization {
+			status
+			desiredStatus: desired_status
+			maxTrialCount: max_trial_count
+			parallelTrialCount: parallel_trial_count
+			dockerImage: docker_image
+			algorithm
+			commandTemplate: command_template
+		}
+		parameters(order_by: {key:asc}) {
+			key
+			kind
+			minValue: min_value
+			maxValue: max_value
+			stepValue: step_value
+			logarithmic
+			choices
+		}
+		metrics(where: {objective_order:{_is_null:false}}, order_by: {objective_order:asc}) {
+			key
+			direction
+		}
+	}
+}
+`
+
+func CliExperimentDetails(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	where json.RawMessage,
+) (data_ *CliExperimentDetailsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CliExperimentDetails",
+		Query:  CliExperimentDetails_Operation,
+		Variables: &__CliExperimentDetailsInput{
+			Where: where,
+		},
+	}
+
+	data_ = &CliExperimentDetailsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The query executed by CliExperiments.
 const CliExperiments_Operation = `
 query CliExperiments ($after: String!, $limit: Int!) {
@@ -1194,6 +1923,88 @@ func CliLaunch(
 	return data_, err_
 }
 
+// The query executed by CliLogs.
+const CliLogs_Operation = `
+query CliLogs ($input: LogsInput!) {
+	logs(input: $input) {
+		windowEnd
+		totalHits
+		hits {
+			timestamp
+			message
+			level
+			podName
+			namespace
+			container
+			trialId
+			experimentId
+			orgId
+		}
+	}
+}
+`
+
+func CliLogs(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input LogsInput,
+) (data_ *CliLogsResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CliLogs",
+		Query:  CliLogs_Operation,
+		Variables: &__CliLogsInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CliLogsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by CliPause.
+const CliPause_Operation = `
+mutation CliPause ($input: ExperimentCommandInput!) {
+	pauseExperiment(input: $input) {
+		id
+		desiredStatus
+		success
+	}
+}
+`
+
+func CliPause(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input ExperimentCommandInput,
+) (data_ *CliPauseResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CliPause",
+		Query:  CliPause_Operation,
+		Variables: &__CliPauseInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CliPauseResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
 // The mutation executed by CliPollLogin.
 const CliPollLogin_Operation = `
 mutation CliPollLogin ($input: CliLoginPollInput!) {
@@ -1303,6 +2114,114 @@ func CliProjects(
 	}
 
 	data_ = &CliProjectsResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The mutation executed by CliResume.
+const CliResume_Operation = `
+mutation CliResume ($input: ExperimentCommandInput!) {
+	resumeExperiment(input: $input) {
+		id
+		desiredStatus
+		success
+	}
+}
+`
+
+func CliResume(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	input ExperimentCommandInput,
+) (data_ *CliResumeResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CliResume",
+		Query:  CliResume_Operation,
+		Variables: &__CliResumeInput{
+			Input: input,
+		},
+	}
+
+	data_ = &CliResumeResponse{}
+	resp_ := &graphql.Response{Data: data_}
+
+	err_ = client_.MakeRequest(
+		ctx_,
+		req_,
+		resp_,
+	)
+
+	return data_, err_
+}
+
+// The query executed by CliRunDetailsPage.
+const CliRunDetailsPage_Operation = `
+query CliRunDetailsPage ($where: runs_bool_exp!, $limit: Int!) {
+	runs(where: $where, order_by: {id:asc}, limit: $limit) {
+		... CliRunDetails
+	}
+}
+fragment CliRunDetails on runs {
+	id
+	name
+	projectId: project_id
+	experimentId: experiment_id
+	status
+	finalizationState: finalization_state
+	createdAt: created_at
+	startedAt: started_at
+	finishedAt: finished_at
+	finalizedAt: finalized_at
+	lastError: last_error
+	optimization {
+		number
+		resultsAcceptedAt: results_accepted_at
+	}
+	parameters(order_by: {key:asc}) {
+		key
+		numberValue: number_value
+		stringValue: string_value
+		booleanValue: boolean_value
+	}
+	finalMetrics: final_metrics {
+		key
+		value
+	}
+	metrics {
+		key
+		aggregation
+		lastValue: last_value
+		minValue: min_value
+		maxValue: max_value
+		meanValue: mean_value
+		explicitValue: explicit_value
+	}
+}
+`
+
+func CliRunDetailsPage(
+	ctx_ context.Context,
+	client_ graphql.Client,
+	where json.RawMessage,
+	limit int,
+) (data_ *CliRunDetailsPageResponse, err_ error) {
+	req_ := &graphql.Request{
+		OpName: "CliRunDetailsPage",
+		Query:  CliRunDetailsPage_Operation,
+		Variables: &__CliRunDetailsPageInput{
+			Where: where,
+			Limit: limit,
+		},
+	}
+
+	data_ = &CliRunDetailsPageResponse{}
 	resp_ := &graphql.Response{Data: data_}
 
 	err_ = client_.MakeRequest(

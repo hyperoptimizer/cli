@@ -171,3 +171,47 @@ query CliRuns(
     }
   }
 }
+
+mutation CliPause($input: ExperimentCommandInput!) {
+  pauseExperiment(input: $input) { id desiredStatus success }
+}
+mutation CliResume($input: ExperimentCommandInput!) {
+  resumeExperiment(input: $input) { id desiredStatus success }
+}
+
+query CliExperimentDetails($where: experiments_bool_exp!) {
+  experiments(where: $where, limit: 1) {
+    id name kind projectId: project_id description createdAt: created_at
+    optimization {
+      status desiredStatus: desired_status maxTrialCount: max_trial_count
+      parallelTrialCount: parallel_trial_count dockerImage: docker_image algorithm commandTemplate: command_template
+    }
+    parameters(order_by: {key: asc}) { key kind minValue: min_value maxValue: max_value stepValue: step_value logarithmic choices }
+    metrics(where: {objective_order: {_is_null: false}}, order_by: {objective_order: asc}) {
+      key direction
+    }
+  }
+}
+
+fragment CliRunDetails on runs {
+  id name projectId: project_id experimentId: experiment_id status
+  finalizationState: finalization_state createdAt: created_at startedAt: started_at
+  finishedAt: finished_at finalizedAt: finalized_at lastError: last_error
+  optimization { number resultsAcceptedAt: results_accepted_at }
+  parameters(order_by: {key: asc}) { key numberValue: number_value stringValue: string_value booleanValue: boolean_value }
+  finalMetrics: final_metrics { key value }
+  metrics {
+    key aggregation lastValue: last_value minValue: min_value maxValue: max_value
+    meanValue: mean_value explicitValue: explicit_value
+  }
+}
+query CliRunDetailsPage($where: runs_bool_exp!, $limit: Int!) {
+  runs(where: $where, order_by: {id: asc}, limit: $limit) { ...CliRunDetails }
+}
+
+query CliLogs($input: LogsInput!) {
+  logs(input: $input) {
+    windowEnd totalHits
+    hits { timestamp message level podName namespace container trialId experimentId orgId }
+  }
+}
