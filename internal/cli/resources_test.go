@@ -228,7 +228,7 @@ func TestFreshLogsRetainsIdenticalOccurrences(t *testing.T) {
 func TestLogWindowPagesAndRejectsOverflow(t *testing.T) {
 	for _, overflow := range []bool{false, true} {
 		t.Run(fmt.Sprint(overflow), func(t *testing.T) {
-			start := time.Date(2026, 11, 1, 0, 0, 0, 0, time.UTC)
+			start := time.Date(2026, 11, 1, 0, 0, 0, 1234567, time.UTC)
 			end := start.Add(time.Hour)
 			calls := 0
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -236,7 +236,7 @@ func TestLogWindowPagesAndRejectsOverflow(t *testing.T) {
 				op := decodeGraphQL(t, r)
 				var input api.LogsInput
 				json.Unmarshal(op.Variables["input"], &input)
-				if input.End == nil || !input.End.Equal(end) || input.ProjectId == nil || *input.ProjectId != "proj_a" {
+				if input.End == nil || !input.End.Equal(end.Truncate(time.Millisecond)) || input.ProjectId == nil || *input.ProjectId != "proj_a" {
 					t.Error("window or scope changed")
 				}
 				offset := *input.Offset
@@ -248,7 +248,7 @@ func TestLogWindowPagesAndRejectsOverflow(t *testing.T) {
 				if overflow {
 					total = 10001
 				}
-				writeGraphQL(w, "logs", map[string]any{"windowEnd": end.Format(time.RFC3339), "totalHits": total, "hits": rows})
+				writeGraphQL(w, "logs", map[string]any{"windowEnd": end.Truncate(time.Millisecond).Format(time.RFC3339Nano), "totalHits": total, "hits": rows})
 			}))
 			defer server.Close()
 			app, _, _ := testApp(server.URL)
