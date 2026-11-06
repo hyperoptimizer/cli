@@ -156,7 +156,14 @@ The CLI validates your configuration, builds and pushes your image when `[build]
 | `hpo auth status` | Check the active credential and API endpoint |
 | `hpo org list` | List organizations, plans, and subscription status |
 | `hpo org use <id-or-slug>` | Set your default organization |
+| `hpo project create <name>` | Create a project without writing local files |
 | `hpo project list` | List projects in the selected organization |
+| `hpo experiment show <id>` | Inspect an experiment and its current progress |
+| `hpo experiment pause/resume <id>` | Request a runtime state change |
+| `hpo experiment best <id>` | Retrieve winning parameters or Pareto results |
+| `hpo run list --experiment <id>` | Inspect and export all trials |
+| `hpo run show <id>` | Inspect one run, including parameters and errors |
+| `hpo logs <id> [--follow]` | Read workload logs for an experiment |
 | `hpo experiment list` | List optimization and external tracking experiments |
 | `hpo init` | Create a project configuration |
 | `hpo fmt` | Format your configuration |
@@ -197,6 +204,7 @@ hpo validate --offline
 ```sh
 hpo org list
 hpo org use my-team
+hpo project create "Trading strategies"
 hpo project list
 hpo experiment list --project <project-id>
 ```
@@ -209,13 +217,45 @@ Launch in the background, then reconnect when you need to:
 
 ```sh
 hpo optimize --detach
-hpo watch <experiment-id> --project <project-id>
-hpo stop <experiment-id> --project <project-id>
+hpo watch <experiment-id>
+hpo experiment show <experiment-id>
+hpo experiment pause <experiment-id>
+hpo experiment resume <experiment-id>
+hpo stop <experiment-id>
 ```
 
 Pressing **Ctrl+C** while watching detaches your terminal; the experiment keeps running in the cloud. `stop` prevents new trials and lets running trials finish, so a gracefully stopped experiment can still finish as `completed`.
 
-Use `hpo optimize --paused --detach` to create a paused experiment without starting execution.
+Use `hpo optimize --paused --detach` to create a paused experiment without starting execution, then `hpo experiment resume <id>` to start it. Control commands confirm the requested state; actual runtime status may take time to converge. Finished or stopping experiments cannot pause or resume.
+
+ID-based commands resolve resources within the selected organization and work without `hpo.toml`. An explicit `--project` restricts the lookup; a mismatching project fails rather than changing the target. External tracking experiments support summaries, run inspection, and logs; optimization controls and best-result ranking require managed optimization experiments.
+
+### Trial results and exports
+
+```sh
+hpo run list --experiment <id>
+hpo run show <run-id>
+hpo run list --experiment <id> --output csv > results.csv
+hpo experiment best <id>
+hpo experiment best <id> --objective accuracy --output jsonl
+hpo experiment best <id> --pareto --output csv > pareto.csv
+```
+
+Run lists paginate through the entire history. CSV exports use sorted `parameter.<key>` and `metric.<key>` columns, plus run identity, status, finalization, error, and timestamp columns; missing values are empty cells. JSONL preserves numeric, boolean, and string parameter types. Complete finalizations read immutable final metrics; unfinalized runs show live aggregated metrics.
+
+Best results require successful, fully finalized, optimizer-accepted trials containing every objective. A single objective uses its configured minimize/maximize direction and retains ties. Multiple objectives return all non-dominated runs (the Pareto front), without a combined score. `--objective <key>` ranks eligible runs by that objective alone; `--pareto` explicitly selects all objectives. These flags are mutually exclusive. Results reflect the data fetched during the command, not a frozen database snapshot.
+
+### Workload logs
+
+```sh
+hpo logs <experiment-id> --since 30m
+hpo logs <experiment-id> --run <run-id> --follow
+hpo logs <experiment-id> --output jsonl
+```
+
+Logs print oldest first with timestamp, level, and run identity. The default look-back is one hour and the default per-window limit is 1,000 entries. Use `--since` with a positive Go duration and `--limit` up to 10,000. A larger matching window fails with guidance before printing that window, rather than silently truncating. Follow mode polls every two seconds and rechecks a 30-second overlap for delayed ingestion, preserving repeated identical entries. Logs arriving more than 30 seconds late may require a fresh historical query. The storage API does not provide a snapshot cursor, so concurrent ingestion can affect offset paging. Retention and provider availability also apply. Ctrl+C exits follow mode.
+
+Pause/resume require `experiments_read` and `experiments_write`; summaries require `experiments_read` and `runs_read`; best results and run lists require `experiments_read` and `runs_read`. Logs require `experiments_read` and `logs_read` (plus `runs_read` with `--run`). Existing personal CLI credentials issued without `logs_read` need a new browser login after the backend update. Organization keys must be issued with the needed scopes. A set `HPO_API_KEY` continues to override saved credentials.
 
 If a launch times out, the CLI saves recovery state in `.hpo/launch.json`. Rerun the same command with unchanged configuration and required environment values to recover the original experiment. Check the dashboard before deleting pending recovery state. After a successful launch, another `optimize` creates a new experiment.
 
@@ -230,7 +270,18 @@ hpo validate
 hpo optimize --detach --output jsonl
 ```
 
-`--output jsonl` writes structured events to stdout and diagnostics to stderr. Use `--output plain` for readable logs. The default, `auto`, chooses terminal tables or plain output as appropriate.
+`--output jsonl` writes versioned structured events to stdout and diagnostics to stderr. Use `--output plain` for readable logs and borderless lists. The default, `auto`, chooses rounded tables in a terminal and plain output when redirected (or with `TERM=dumb`). `--output table` explicitly selects tables; live monitoring requires a terminal.
+
+Organization, project, and experiment lists share a Unicode-aware table renderer. Long cells wrap to the terminal width without dropping values. Resource lists, experiment/run summaries, and best results also support CSV and Markdown exports; these formats are rejected for mutations, logs, and live monitoring. Empty exports include column headers, while empty human-readable lists show a helpful message. CSV retains original field values, including commas, quotes, and newlines. JSONL retains the full API records and existing event envelope.
+
+```sh
+hpo project list --output table
+hpo experiment list --output csv > experiments.csv
+hpo org list --output markdown > organizations.md
+hpo experiment list --output jsonl | jq '.experiments'
+```
+
+Static tables use [go-pretty](https://github.com/jedib0t/go-pretty); CSV uses Go's `encoding/csv` for lossless quoting. Live monitoring continues to use Bubble Tea/Bubbles.
 
 ### Authentication and privacy
 

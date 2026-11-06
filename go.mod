@@ -10,6 +10,7 @@ require (
 	github.com/charmbracelet/huh v0.7.0
 	github.com/charmbracelet/x/ansi v0.10.1
 	github.com/creack/pty v1.1.24
+	github.com/jedib0t/go-pretty/v6 v6.6.8
 	github.com/muesli/cancelreader v0.2.2
 	github.com/natefinch/atomic v1.0.1
 	github.com/oklog/ulid/v2 v2.1.1
@@ -20,7 +21,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/vektah/gqlparser/v2 v2.5.19
 	github.com/zalando/go-keyring v0.2.6
-	golang.org/x/term v0.28.0
+	golang.org/x/term v0.29.0
 )
 
 require (

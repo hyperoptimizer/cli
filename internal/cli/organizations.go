@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/charmbracelet/huh"
 	"github.com/hyperoptimizer/cli/internal/api"
@@ -92,18 +91,15 @@ func (a *App) selectOrganization(ctx context.Context, organizations []api.Organi
 	return selected, nil
 }
 func (a *App) printOrganizations(organizations []api.Organization, selected string) error {
-	lines := []string{"ORGANIZATION\tPLAN\tSUBSCRIPTION\tID"}
+	rows := [][]string{}
 	for _, org := range organizations {
 		marker := ""
-		if org.Id == selected {
+		if org.Id == selected && a.Output != "csv" {
 			marker = " *"
 		}
-		lines = append(lines, fmt.Sprintf("%s%s\t%s\t%s\t%s", org.Name, marker, org.Plan, org.SubscriptionStatus, org.Id))
+		rows = append(rows, []string{org.Name + marker, org.Plan, org.SubscriptionStatus, org.Id})
 	}
-	if len(organizations) == 0 {
-		lines = append(lines, "You do not currently belong to an available organization.")
-	}
-	return a.event("organizations", map[string]any{"organizations": organizations, "defaultOrganization": selected}, strings.Join(lines, "\n"))
+	return a.listOutput("organizations", map[string]any{"organizations": organizations, "defaultOrganization": selected}, []string{"ORGANIZATION", "PLAN", "SUBSCRIPTION", "ID"}, rows, "You do not currently belong to an available organization.")
 }
 func (a *App) finishPersonalLogin(ctx context.Context, client *api.Client, key string) error {
 	// Credential is already saved; workspace selection does not determine authentication.

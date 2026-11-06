@@ -30,3 +30,15 @@ bindings:
     type: string
   metric_aggregation:
     type: string
+  objective_direction:
+    type: string
+  algorithm:
+    type: string
+  jsonb:
+    type: encoding/json.RawMessage
+  parameter_kind:
+    type: string
+  experiments_bool_exp:
+    type: encoding/json.RawMessage
+  runs_bool_exp:
+    type: encoding/json.RawMessage

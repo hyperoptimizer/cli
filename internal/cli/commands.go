@@ -58,7 +58,7 @@ func (a *App) Command() *cobra.Command {
 	flags.StringVar(&a.Organization, "org", "", "Organization ID or slug (overrides the saved default)")
 	flags.StringVar(&a.CredentialFile, "credential-file", "", "Explicit protected-file credential storage instead of OS keyring")
 	flags.BoolVar(&a.Accessible, "accessible", a.Accessible, "Use accessible text prompts")
-	flags.StringVar(&a.Output, "output", "auto", "auto, table, plain, or jsonl")
+	flags.StringVar(&a.Output, "output", "auto", "auto, table, plain, jsonl, csv, or markdown (csv/markdown: resource reads only)")
 	root.AddCommand(&cobra.Command{Use: "version", Args: cobra.NoArgs, Run: func(_ *cobra.Command, _ []string) { fmt.Fprintf(a.Out, "hpo %s\n", Version) }})
 	root.AddCommand(&cobra.Command{Use: "logout", Args: cobra.NoArgs, RunE: func(_ *cobra.Command, _ []string) error { return a.logout() }})
 	var stdinKey, noBrowser bool
@@ -91,7 +91,7 @@ func (a *App) Command() *cobra.Command {
 	}})
 	root.AddCommand(auth)
 	root.AddCommand(a.organizationCommand())
-	root.AddCommand(a.projectCommand(), a.experimentCommand())
+	root.AddCommand(a.projectCommand(), a.experimentCommand(), a.runCommand(), a.logsCommand())
 	var createProject string
 	initialize := &cobra.Command{Use: "init", Short: "Write a schema-generated project configuration", Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, _ []string) error { return a.init(cmd.Context(), createProject) }}
 	initialize.Flags().StringVar(&createProject, "create-project", "", "Create a new project with this name")
@@ -146,14 +146,14 @@ func (a *App) Command() *cobra.Command {
 		if err != nil {
 			return err
 		}
-		_, parsed, err := config.Read(a.ConfigPath)
-		if err != nil && a.Project == "" {
-			return failure(2, err.Error())
-		}
-		project, err := a.project(parsed)
+		exp, err := a.resolveExperiment(ctx, client, args[0], source)
 		if err != nil {
 			return err
 		}
+		if err := managedExperiment(exp); err != nil {
+			return err
+		}
+		project := exp.ProjectId
 		return a.watch(ctx, client, project, args[0], source)
 	}})
 	root.AddCommand(&cobra.Command{Use: "stop <experiment-id>", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
@@ -161,14 +161,14 @@ func (a *App) Command() *cobra.Command {
 		if err != nil {
 			return err
 		}
-		_, parsed, err := config.Read(a.ConfigPath)
-		if err != nil && a.Project == "" {
-			return failure(2, err.Error())
-		}
-		project, err := a.project(parsed)
+		exp, err := a.resolveExperiment(ctx, client, args[0], source)
 		if err != nil {
 			return err
 		}
+		if err := managedExperiment(exp); err != nil {
+			return err
+		}
+		project := exp.ProjectId
 		err = client.Stop(ctx, project, args[0])
 		if err != nil {
 			return apiError(err, source)
@@ -200,8 +200,16 @@ func (a *App) Command() *cobra.Command {
 		switch a.Output {
 		case "auto", "plain", "table", "jsonl":
 			return nil
+		case "csv", "markdown":
+			if cmd.Parent() != nil && (cmd.Name() == "list" || cmd.Name() == "show" || cmd.Name() == "best") {
+				switch cmd.Parent().Name() {
+				case "org", "project", "experiment", "run":
+					return nil
+				}
+			}
+			return failure(2, "--output csv and markdown are supported only by resource list/show/best commands")
 		default:
-			return failure(2, "--output must be auto, table, plain, or jsonl")
+			return failure(2, "--output must be auto, table, plain, jsonl, csv, or markdown")
 		}
 	}
 	return root
@@ -308,7 +316,7 @@ func (a *App) init(ctx context.Context, createName ...string) error {
 			cursor = next
 		}
 		if len(projects) == 0 {
-			return failure(2, "No projects exist. Create one in the dashboard, then run hpo init.")
+			return failure(2, "No projects exist. Run hpo project create <name>, or hpo init --create-project <name>.")
 		}
 		if len(projects) == 1 {
 			project = projects[0].Id
