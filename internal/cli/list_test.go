@@ -20,7 +20,7 @@ func TestListCommandsPaginateWithDefaultAndOverride(t *testing.T) {
 					if override != "" {
 						wantOrg = override
 					}
-					if r.Header.Get("X-HPO-Organization") != wantOrg || r.Header.Get("Authorization") != "Bearer ho_list_test" {
+					if r.Header.Get("X-HPO-Organization") != wantOrg || r.Header.Get("Authorization") != "Bearer hyperoptimizer_list_test" {
 						t.Error("incorrect credential or organization")
 					}
 					request := decodeGraphQL(t, r)
@@ -60,10 +60,10 @@ func TestListCommandsPaginateWithDefaultAndOverride(t *testing.T) {
 				defer server.Close()
 				app, out, _ := testApp(server.URL)
 				setEnvironmentKey(app, "", false)
-				if err := app.saveCredential("ho_list_test"); err != nil {
+				if err := app.saveCredential("hyperoptimizer_list_test"); err != nil {
 					t.Fatal(err)
 				}
-				if err := app.saveDefaultOrganization("ho_list_test", "org_a"); err != nil {
+				if err := app.saveDefaultOrganization("hyperoptimizer_list_test", "org_a"); err != nil {
 					t.Fatal(err)
 				}
 				args := []string{kind, "list", "--output", "jsonl"}
@@ -87,7 +87,7 @@ func TestListCommandsPaginateWithDefaultAndOverride(t *testing.T) {
 				if rows[100]["id"] != "id_100" || rows[204]["id"] != "id_204" {
 					t.Fatal("pagination lost rows")
 				}
-				if got, err := app.defaultOrganization("ho_list_test"); got != "org_a" || err != nil {
+				if got, err := app.defaultOrganization("hyperoptimizer_list_test"); got != "org_a" || err != nil {
 					t.Fatalf("default changed: %s %v", got, err)
 				}
 			})

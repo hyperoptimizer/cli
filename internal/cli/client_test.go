@@ -42,7 +42,7 @@ func TestGraphQLRedirectCannotForwardCredentials(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = client.Identity(authContext(context.Background(), "ho_secret")); err == nil || calls != 0 {
+	if _, err = client.Identity(authContext(context.Background(), "hyperoptimizer_secret")); err == nil || calls != 0 {
 		t.Fatal("credential redirect was followed")
 	}
 }

@@ -23,13 +23,13 @@ func TestOrganizationDefaultIsBoundToCredentialAndOverrideDoesNotChangeIt(t *tes
 	defer server.Close()
 	app, _, _ := testApp(server.URL)
 	setEnvironmentKey(app, "", false)
-	if err := app.saveCredential("ho_user"); err != nil {
+	if err := app.saveCredential("hyperoptimizer_user"); err != nil {
 		t.Fatal(err)
 	}
-	if err := app.saveDefaultOrganization("ho_user", "org_a"); err != nil {
+	if err := app.saveDefaultOrganization("hyperoptimizer_user", "org_a"); err != nil {
 		t.Fatal(err)
 	}
-	if value, err := app.defaultOrganization("ho_other"); err != nil || value != "" {
+	if value, err := app.defaultOrganization("hyperoptimizer_other"); err != nil || value != "" {
 		t.Fatalf("default leaked across users: %s %v", value, err)
 	}
 	for _, override := range []string{"", "org_b"} {
@@ -49,7 +49,7 @@ func TestOrganizationDefaultIsBoundToCredentialAndOverrideDoesNotChangeIt(t *tes
 			t.Fatalf("header %q, want %q", selected, want)
 		}
 	}
-	if value, err := app.defaultOrganization("ho_user"); err != nil || value != "org_a" {
+	if value, err := app.defaultOrganization("hyperoptimizer_user"); err != nil || value != "org_a" {
 		t.Fatalf("override persisted: %s %v", value, err)
 	}
 }
@@ -63,10 +63,10 @@ func TestOrganizationListWorksWithRemovedDefaultAndShowsPlans(t *testing.T) {
 	defer server.Close()
 	app, out, _ := testApp(server.URL)
 	setEnvironmentKey(app, "", false)
-	if err := app.saveCredential("ho_user"); err != nil {
+	if err := app.saveCredential("hyperoptimizer_user"); err != nil {
 		t.Fatal(err)
 	}
-	if err := app.saveDefaultOrganization("ho_user", "removed"); err != nil {
+	if err := app.saveDefaultOrganization("hyperoptimizer_user", "removed"); err != nil {
 		t.Fatal(err)
 	}
 	cmd := app.Command()
@@ -95,10 +95,10 @@ func TestPersonalLoginPromptsForDefaultOrganization(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = app.finishPersonalLogin(context.Background(), client, "ho_user"); err != nil {
+	if err = app.finishPersonalLogin(context.Background(), client, "hyperoptimizer_user"); err != nil {
 		t.Fatal(err)
 	}
-	if value, err := app.defaultOrganization("ho_user"); err != nil || value != "org_b" {
+	if value, err := app.defaultOrganization("hyperoptimizer_user"); err != nil || value != "org_b" {
 		t.Fatalf("default: %s %v", value, err)
 	}
 }
@@ -109,10 +109,10 @@ func TestOrganizationUseRejectsUnavailableOrganizationWithoutChangingDefault(t *
 	defer server.Close()
 	app, _, _ := testApp(server.URL)
 	setEnvironmentKey(app, "", false)
-	if err := app.saveCredential("ho_user"); err != nil {
+	if err := app.saveCredential("hyperoptimizer_user"); err != nil {
 		t.Fatal(err)
 	}
-	if err := app.saveDefaultOrganization("ho_user", "org_a"); err != nil {
+	if err := app.saveDefaultOrganization("hyperoptimizer_user", "org_a"); err != nil {
 		t.Fatal(err)
 	}
 	cmd := app.Command()
@@ -120,7 +120,7 @@ func TestOrganizationUseRejectsUnavailableOrganizationWithoutChangingDefault(t *
 	if err := cmd.Execute(); err == nil {
 		t.Fatal("unknown organization accepted")
 	}
-	if value, err := app.defaultOrganization("ho_user"); err != nil || value != "org_a" {
+	if value, err := app.defaultOrganization("hyperoptimizer_user"); err != nil || value != "org_a" {
 		t.Fatalf("changed default: %s %v", value, err)
 	}
 }

@@ -62,7 +62,7 @@ func TestPublicLoginAndPrivateIdentityUseGraphQLAuthorization(t *testing.T) {
 			}
 			_, _ = w.Write([]byte(`{"data":{"startCliLogin":{"deviceCode":"opaque","userCode":"H-123-456-789","verificationUri":"http://localhost:3003/connect","expiresIn":600,"interval":5}}}`))
 		} else {
-			if r.Header.Get("Authorization") != "Bearer ho_test" {
+			if r.Header.Get("Authorization") != "Bearer hyperoptimizer_test" {
 				t.Error("API key was not supplied")
 			}
 			_, _ = w.Write([]byte(`{"data":{"cliIdentity":{"keyId":"key","organizationId":"org","scopes":[]}}}`))
@@ -73,7 +73,7 @@ func TestPublicLoginAndPrivateIdentityUseGraphQLAuthorization(t *testing.T) {
 	if _, err := client.StartLogin(context.Background()); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := client.Identity(WithToken(context.Background(), "ho_test")); err != nil {
+	if _, err := client.Identity(WithToken(context.Background(), "hyperoptimizer_test")); err != nil {
 		t.Fatal(err)
 	}
 }
