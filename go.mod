@@ -19,14 +19,14 @@ require (
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/santhosh-tekuri/jsonschema/v5 v5.3.1
 	github.com/spf13/cobra v1.10.2
-	github.com/vektah/gqlparser/v2 v2.5.19
+	github.com/vektah/gqlparser/v2 v2.5.64
 	github.com/zalando/go-keyring v0.2.6
 	golang.org/x/term v0.29.0
 )
 
 require (
 	al.essio.dev/pkg/shellescape v1.5.1 // indirect
-	github.com/agnivade/levenshtein v1.1.1 // indirect
+	github.com/agnivade/levenshtein v1.2.2 // indirect
 	github.com/alexflint/go-arg v1.5.1 // indirect
 	github.com/alexflint/go-scalar v1.2.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
