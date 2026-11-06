@@ -18,9 +18,19 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
         with:
           go-version-file: go.mod
+      - name: Read GoReleaser version
+        id: goreleaser-version
+        shell: bash
+        run: echo "version=$(cat .goreleaser-version)" >> "$GITHUB_OUTPUT"
+      - uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6
+        with:
+          version: v${{ steps.goreleaser-version.outputs.version }}
+          install-only: true
+      - run: goreleaser check
       - run: go mod verify
       - run: go generate ./internal/graphql
       - run: git diff --exit-code
@@ -32,16 +42,20 @@ jobs:
         shell: bash
         run: |
           sh package.sh "${RELEASE_TAG#v}"
-          cp dist/checksums.txt "$RUNNER_TEMP/first-checksums.txt"
+          cp dist/release/checksums.txt "$RUNNER_TEMP/first-checksums.txt"
           rm -rf dist
           go clean -cache
           sh package.sh "${RELEASE_TAG#v}"
-          cmp "$RUNNER_TEMP/first-checksums.txt" dist/checksums.txt
+          cmp "$RUNNER_TEMP/first-checksums.txt" dist/release/checksums.txt
       - uses: actions/attest-build-provenance@43d14bc2b83dec42d39ecae14e916627a18bb661 # v3
         with:
-          subject-path: 'dist/*'
+          subject-path: 'dist/release/*'
       - name: Create reviewable release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" dist/* --draft --verify-tag --title "HPO $RELEASE_TAG" --notes-file RELEASE_NOTES.md
+        shell: bash
+        run: |
+          prerelease=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then prerelease+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" dist/release/* --draft --verify-tag --title "HPO $RELEASE_TAG" --notes-file RELEASE_NOTES.md "${prerelease[@]}"

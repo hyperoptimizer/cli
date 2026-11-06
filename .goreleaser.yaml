@@ -1,0 +1,111 @@
+version: 2
+project_name: hpo
+
+builds:
+  - id: hpo
+    main: ./cmd/hpo
+    binary: hpo
+    env: [CGO_ENABLED=0]
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath, -buildvcs=false, -mod=readonly]
+    ldflags:
+      - -s -w -X github.com/hyperoptimizer/cli/internal/cli.Version={{ .Version }}
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    hooks:
+      post:
+        - 'cp "{{ .Path }}" "{{ dir .Path }}/hyperoptimizer{{ .Ext }}"'
+
+archives:
+  - ids: [hpo]
+    name_template: 'hpo_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    builds_info:
+      owner: root
+      group: root
+      mtime: '{{ .CommitDate }}'
+    files:
+      # One compiled artifact plus a copied alias keeps archive order deterministic.
+      - src: 'dist/hpo_{{ .Os }}_{{ .Arch }}*/hyperoptimizer{{ if eq .Os "windows" }}.exe{{ end }}'
+        strip_parent: true
+        info:
+          owner: root
+          group: root
+          mode: 0755
+          mtime: '{{ .CommitDate }}'
+      - src: README.md
+        info:
+          owner: root
+          group: root
+          mode: 0644
+          mtime: '{{ .CommitDate }}'
+      - src: LICENSE
+        info:
+          owner: root
+          group: root
+          mode: 0644
+          mtime: '{{ .CommitDate }}'
+
+nfpms:
+  - ids: [hpo]
+    package_name: hyperoptimizer
+    file_name_template: 'hyperoptimizer_{{ .Version }}_{{ .Arch }}'
+    vendor: HyperOptimizer
+    homepage: https://hyperoptimizer.com/
+    maintainer: HyperOptimizer <support@hyperoptimizer.com>
+    description: Run hyperparameter optimization experiments from your terminal
+    license: MIT
+    formats: [deb, rpm]
+    bindir: /usr/bin
+    mtime: '{{ .CommitDate }}'
+    contents:
+      - src: /usr/bin/hpo
+        dst: /usr/bin/hyperoptimizer
+        type: symlink
+        file_info:
+          mode: 0777
+          mtime: '{{ .CommitDate }}'
+      - src: LICENSE
+        dst: /usr/share/licenses/hyperoptimizer/LICENSE
+        file_info:
+          mode: 0644
+          mtime: '{{ .CommitDate }}'
+
+homebrew_casks:
+  - name: hyperoptimizer
+    ids: [default]
+    binaries: [hpo, hyperoptimizer]
+    homepage: https://hyperoptimizer.com/
+    description: Run hyperparameter optimization experiments from your terminal
+    # Stage for review; never update a tap while the release is still a draft.
+    skip_upload: true
+    repository:
+      owner: hyperoptimizer
+      name: cli
+    hooks:
+      pre:
+        # Run before completion generation; touch only the two staged CLI files.
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/hpo"]
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/hyperoptimizer"]
+          end
+    generate_completions_from_executable:
+      executable: hpo
+      args: [completion]
+
+checksum:
+  name_template: checksums.txt
+snapshot:
+  version_template: '{{ .Version }}-snapshot'
+changelog:
+  disable: true
+release:
+  github:
+    owner: hyperoptimizer
+    name: cli
+  draft: true
+  prerelease: auto

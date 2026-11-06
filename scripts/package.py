@@ -1,64 +1,97 @@
 #!/usr/bin/env python3
-"""Build deterministic release archives from a clean, committed public checkout."""
-import gzip
+"""Run pinned GoReleaser locally and stage only public, attestable release assets."""
+
+import argparse
 import hashlib
-import io
 import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
-import sys
-import tarfile
-import tempfile
-import time
-import zipfile
 
-root = Path(__file__).resolve().parent.parent
-os.chdir(root)
-version = sys.argv[1] if len(sys.argv) == 2 else ''
-if not re.fullmatch(r'\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?', version):
-    sys.exit('Usage: python3 scripts/package.py VERSION')
-epoch = int(os.environ.get('SOURCE_DATE_EPOCH') or subprocess.check_output(['git', 'show', '-s', '--format=%ct', 'HEAD'], text=True).strip())
-expected = 'go' + re.search(r'^go (\S+)', Path('go.mod').read_text(), re.M)[1]
-actual = subprocess.check_output(['go', 'env', 'GOVERSION'], text=True).strip()
-if actual != expected:
-    sys.exit(f'Use the pinned toolchain {expected}; found {actual}')
-dist = root / 'dist'
-dist.mkdir(exist_ok=True)
-artifacts = []
-platforms = os.environ.get('HPO_BUILD_PLATFORMS', 'darwin-amd64 darwin-arm64 linux-amd64 linux-arm64 windows-amd64 windows-arm64').split()
-for platform in platforms:
-    if platform not in ('darwin-amd64','darwin-arm64','linux-amd64','linux-arm64','windows-amd64','windows-arm64'):
-        sys.exit('Unsupported platform: ' + platform)
-    system, arch = platform.split('-')
-    env = {**os.environ, 'CGO_ENABLED':'0', 'GOOS':system, 'GOARCH':arch, 'GOTOOLCHAIN':'local', 'GOFLAGS':''}
-    with tempfile.TemporaryDirectory() as temp:
-        binary = Path(temp) / 'hpo'
-        subprocess.run(['go','build','-trimpath','-buildvcs=false','-mod=readonly','-ldflags',f'-s -w -X github.com/hyperoptimizer/cli/internal/cli.Version={version}','-o',str(binary),'./cmd/hpo'],env=env,check=True)
-        suffix = '.exe' if system == 'windows' else ''
-        contents = {f'hpo{suffix}':binary.read_bytes(),f'hyperoptimizer{suffix}':binary.read_bytes(), 'README.md':Path('README.md').read_bytes(), 'LICENSE':Path('LICENSE').read_bytes()}
-        name = f'hpo_{version}_{system}_{arch}'
-        path = dist / (name + ('.zip' if suffix else '.tar.gz'))
-        if suffix:
-            with zipfile.ZipFile(path,'w',compression=zipfile.ZIP_STORED) as archive:
-                for name,data in sorted(contents.items()):
-                    entry=zipfile.ZipInfo(name,time.gmtime(max(epoch,315532800))[:6])
-                    entry.create_system=3
-                    entry.external_attr=(0o100755 if name.endswith('.exe') else 0o100644)<<16
-                    archive.writestr(entry,data)
-        else:
-            with path.open('wb') as output, gzip.GzipFile(filename='',mode='wb',fileobj=output,mtime=0) as compressed, tarfile.open(fileobj=compressed,mode='w',format=tarfile.USTAR_FORMAT) as archive:
-                for name,data in sorted(contents.items()):
-                    entry=tarfile.TarInfo(name);entry.size=len(data);entry.mtime=epoch;entry.mode=0o755 if name in ('hpo','hyperoptimizer') else 0o644
-                    archive.addfile(entry,io.BytesIO(data))
-        artifacts.append(path)
-# Machine-readable Go module inventory, including tools and test dependencies.
-raw=subprocess.check_output(['go','list','-mod=readonly','-m','-json','all'],text=True)
-modules=[];decoder=json.JSONDecoder()
-while raw.strip():
-    item,end=decoder.raw_decode(raw.lstrip());raw=raw.lstrip()[end:]
-    modules.append({k:item[k] for k in ('Path','Version','Sum','GoModSum') if k in item})
-inventory=dist/'dependencies.json';inventory.write_text(json.dumps({'format':'go-module-inventory-v1','modules':sorted(modules,key=lambda x:x['Path'])},indent=2)+'\n');artifacts.append(inventory)
-(dist/'checksums.txt').write_text(''.join(f'{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}\n' for p in sorted(artifacts)))
-print('Built',len(platforms),'platforms in',dist)
+
+def output(command: list[str]) -> str:
+    return subprocess.run(command, check=True, capture_output=True, text=True).stdout.strip()
+
+
+def stage_assets(dist: Path) -> None:
+    """Exclude internal metadata and intermediate binaries from releases."""
+    release = dist / "release"
+    release.mkdir()
+    archives = sorted(dist.glob("hpo_*.tar.gz")) + sorted(dist.glob("hpo_*.zip"))
+    packages = sorted(dist.glob("hyperoptimizer_*.deb")) + sorted(dist.glob("hyperoptimizer_*.rpm"))
+    casks = list(dist.rglob("hyperoptimizer.rb"))
+    if len(archives) != 6 or len(packages) != 4 or len(casks) != 1:
+        raise SystemExit("Expected six archives, four Linux packages, and one generated Homebrew cask")
+    for source in [*archives, *packages, *casks]:
+        shutil.copyfile(source, release / source.name)
+    # GoReleaser 2.20 puts preflight between binary and completion artifacts.
+    # Group the artifact stanzas before hooks for brew style; preflight still
+    # executes before installation. Normalize before checksumming and attesting.
+    cask = release / "hyperoptimizer.rb"
+    cask_source = cask.read_text(encoding="utf-8")
+    preflight = re.search(r"\n  preflight_steps do\n.*?\n  end\n", cask_source, re.S)
+    if preflight is not None:
+        cask_source = cask_source.replace(preflight[0], "")
+        cask_source = cask_source.replace("\n  zap ", preflight[0] + "\n  zap ")
+    cask_source = cask_source.replace("\n\n  generate_completions_from_executable", "\n  generate_completions_from_executable")
+    cask.write_text(cask_source, encoding="utf-8")
+
+    # Complete Go module inventory, including tools and test dependencies.
+    raw = output(["go", "list", "-mod=readonly", "-m", "-json", "all"])
+    modules = []
+    decoder = json.JSONDecoder()
+    while raw.strip():
+        item, end = decoder.raw_decode(raw.lstrip())
+        raw = raw.lstrip()[end:]
+        modules.append({key: item[key] for key in ("Path", "Version", "Sum", "GoModSum") if key in item})
+    (release / "dependencies.json").write_text(
+        json.dumps({"format": "go-module-inventory-v1", "modules": sorted(modules, key=lambda item: item["Path"])}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    # Extend GoReleaser's checksums to include the cask and module inventory too.
+    (release / "checksums.txt").write_text(
+        "".join(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n" for path in sorted(release.iterdir())),
+        encoding="utf-8",
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("version", nargs="?", help="Version without v; must match the tag at HEAD")
+    parser.add_argument("--snapshot", action="store_true", help="Build unpublished development packages")
+    args = parser.parse_args()
+    if (args.snapshot and args.version is not None) or (not args.snapshot and args.version is None):
+        parser.error("use VERSION for a tagged release, or --snapshot for a development build")
+
+    root = Path(__file__).resolve().parent.parent
+    os.chdir(root)
+    go_match = re.search(r"^go (\S+)", (root / "go.mod").read_text(encoding="utf-8"), re.M)
+    assert go_match is not None
+    expected = "go" + go_match[1]
+    actual = output(["go", "env", "GOVERSION"])
+    if actual != expected:
+        raise SystemExit(f"Use the pinned toolchain {expected}; found {actual}")
+    expected_releaser = (root / ".goreleaser-version").read_text(encoding="utf-8").strip()
+    if f"GitVersion:    {expected_releaser}" not in output(["goreleaser", "--version"]):
+        raise SystemExit(f"Use GoReleaser {expected_releaser}")
+
+    if not args.snapshot:
+        if re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", args.version) is None:
+            parser.error("VERSION must be a semantic version without the v prefix")
+        if output(["git", "describe", "--tags", "--exact-match", "HEAD"]) != "v" + args.version:
+            raise SystemExit("VERSION must match the release tag at HEAD")
+        if output(["git", "status", "--porcelain"]) != "":
+            raise SystemExit("Release builds require a clean checkout")
+
+    # Never publish here: compare builds and attest assets before creating the draft.
+    command = ["goreleaser", "release", "--clean", "--skip=publish", "--release-notes", "RELEASE_NOTES.md"]
+    if args.snapshot:
+        command.append("--snapshot")
+    subprocess.run(command, check=True, env={**os.environ, "GOTOOLCHAIN": "local", "GOFLAGS": ""})
+    stage_assets(root / "dist")
+
+
+if __name__ == "__main__":
+    main()

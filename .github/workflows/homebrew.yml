@@ -1,0 +1,64 @@
+name: Update Homebrew
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published stable release tag to retry
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: homebrew-update
+  cancel-in-progress: false
+jobs:
+  update:
+    if: github.event_name == 'workflow_dispatch' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      attestations: read
+    steps:
+      - name: Prepare a verified cask update after publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag || github.event.release.tag_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Only stable semantic-version tags can update Homebrew" >&2
+            exit 1
+          fi
+          # Do not let a delayed or retried old release roll the tap backwards.
+          latest=$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name)
+          if [[ "$latest" != "$RELEASE_TAG" ]]; then
+            echo "Skipping $RELEASE_TAG; latest stable release is $latest"
+            exit 0
+          fi
+          cd "$RUNNER_TEMP"
+          mkdir homebrew-update
+          cd homebrew-update
+          gh release download "$RELEASE_TAG" --pattern hyperoptimizer.rb --pattern checksums.txt
+          gh attestation verify hyperoptimizer.rb --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/release.yml"
+          gh attestation verify checksums.txt --repo "$GH_REPO" --signer-workflow "$GH_REPO/.github/workflows/release.yml"
+          sha256sum --ignore-missing -c checksums.txt
+          branch="codex/homebrew-$RELEASE_TAG"
+          head=$(gh api "repos/$GH_REPO/git/ref/heads/$DEFAULT_BRANCH" --jq .object.sha)
+          if ! gh api "repos/$GH_REPO/git/ref/heads/$branch" --silent; then
+            gh api "repos/$GH_REPO/git/refs" -f "ref=refs/heads/$branch" -f "sha=$head" --silent
+          fi
+          file_sha=$(gh api "repos/$GH_REPO/contents/Casks/hyperoptimizer.rb?ref=$branch" --jq .sha)
+          base64 -w 0 hyperoptimizer.rb > content.txt
+          gh api --method PUT "repos/$GH_REPO/contents/Casks/hyperoptimizer.rb" \
+            -f "message=Update Homebrew to $RELEASE_TAG" -f "branch=$branch" \
+            -f "sha=$file_sha" -F content=@content.txt --silent
+          if [[ $(gh pr list --head "$branch" --base "$DEFAULT_BRANCH" --json number --jq length) == 0 ]]; then
+            printf 'Update the prebuilt Homebrew cask to %s.\n\nThe release is published; the cask and checksum manifest passed provenance verification.\n' "$RELEASE_TAG" > body.md
+            gh pr create --head "$branch" --base "$DEFAULT_BRANCH" --title "Update Homebrew to $RELEASE_TAG" --body-file body.md
+          fi

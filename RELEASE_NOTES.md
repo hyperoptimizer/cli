@@ -5,7 +5,9 @@ Archives include `hpo` and `hyperoptimizer` (identical executables), README and 
 Six platforms: Linux, macOS and Windows, each AMD64 and ARM64.
 
 Every asset has GitHub build provenance. See VERIFYING.md for verification and
-rebuild instructions. checksums.txt covers archives and the Go dependency inventory.
+rebuild instructions. checksums.txt covers archives, Debian/RPM packages, the Go
+dependency inventory, and the generated Homebrew cask. Homebrew installs prebuilt
+binaries without a Go toolchain; see HOMEBREW.md for installation and tap updates.
 
 The CLI requires a Hyperoptimizer account and service access. Publishing the CLI
 does not change the hosted service's availability or compute/billing policies.

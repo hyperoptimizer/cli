@@ -3,6 +3,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -30,15 +31,63 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
         with:
           go-version-file: go.mod
+      - name: Read GoReleaser version
+        id: goreleaser-version
+        shell: bash
+        run: echo "version=$(cat .goreleaser-version)" >> "$GITHUB_OUTPUT"
+      - uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6
+        with:
+          version: v${{ steps.goreleaser-version.outputs.version }}
+          install-only: true
+      - run: goreleaser check
       - name: Compare two clean builds of every release archive
         shell: bash
         run: |
-          sh package.sh 0.0.0-repro
-          cp dist/checksums.txt "$RUNNER_TEMP/first-checksums.txt"
+          sh package.sh --snapshot
+          cp dist/release/checksums.txt "$RUNNER_TEMP/first-checksums.txt"
           rm -rf dist
           go clean -cache
-          sh package.sh 0.0.0-repro
-          cmp "$RUNNER_TEMP/first-checksums.txt" dist/checksums.txt
+          sh package.sh --snapshot
+          cmp "$RUNNER_TEMP/first-checksums.txt" dist/release/checksums.txt
+      - name: Check packaged binaries and Linux package contents
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-tools
+          python3 scripts/check-packages.py
+  homebrew:
+    name: Homebrew (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Add Homebrew to PATH
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            echo /home/linuxbrew/.linuxbrew/bin >> "$GITHUB_PATH"
+          fi
+      - name: Install and check the candidate cask
+        env:
+          HOMEBREW_NO_INSTALL_CLEANUP: '1'
+        shell: bash
+        run: |
+          brew tap hyperoptimizer/cli "$GITHUB_WORKSPACE"
+          mkdir -p "$(brew --repository hyperoptimizer/cli)/Casks"
+          cp Casks/hyperoptimizer.rb "$(brew --repository hyperoptimizer/cli)/Casks/hyperoptimizer.rb"
+          brew style hyperoptimizer/cli/hyperoptimizer
+          brew trust --cask hyperoptimizer/cli/hyperoptimizer
+          brew install --yes --cask hyperoptimizer/cli/hyperoptimizer
+          hpo version
+          hyperoptimizer version
+          cmp <(hpo version) <(hyperoptimizer version)
+          hpo --help
+          hpo completion bash > "$RUNNER_TEMP/hpo.bash"
+          test -s "$RUNNER_TEMP/hpo.bash"

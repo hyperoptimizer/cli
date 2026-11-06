@@ -22,6 +22,37 @@ Both `hpo` and `hyperoptimizer` run the same program and share credentials and c
 
 ## Installation
 
+### Homebrew (macOS and Linux)
+
+Add the official tap once, then install:
+
+```sh
+brew tap hyperoptimizer/cli https://github.com/hyperoptimizer/cli.git
+brew trust --cask hyperoptimizer/cli/hyperoptimizer
+brew install hyperoptimizer
+hpo version
+```
+
+This downloads prebuilt binaries for your platform and installs both `hpo` and
+`hyperoptimizer`, plus shell completions for `hpo` in Bash, Zsh, and Fish. Go is
+not required. Use current Homebrew on macOS or Linux. Docker with Buildx is
+required separately when building workloads.
+
+To upgrade or uninstall:
+
+```sh
+brew update
+brew upgrade hyperoptimizer
+# To remove the CLI:
+brew uninstall hyperoptimizer
+```
+
+The initial `brew tap` command is required because the cask lives in this
+repository. Installing by name on a fresh Homebrew installation without adding
+the tap requires distribution through Homebrew’s default repositories; this
+package is distributed through our tap.
+See [Homebrew maintenance](HOMEBREW.md) for release and testing instructions.
+
 ### Download a release
 
 Download the archive for your platform from [GitHub Releases](https://github.com/hyperoptimizer/cli/releases):
@@ -39,6 +70,23 @@ Check your installation:
 ```sh
 hpo version
 ```
+
+### Linux packages (Debian/Ubuntu and Fedora/RHEL)
+
+Download the `.deb` or `.rpm` matching your architecture from
+[GitHub Releases](https://github.com/hyperoptimizer/cli/releases) and
+[verify it](VERIFYING.md), then install the local package:
+
+```sh
+# Debian/Ubuntu (example version and architecture):
+sudo apt install ./hyperoptimizer_0.2.0_amd64.deb
+# Fedora/RHEL:
+sudo dnf install ./hyperoptimizer_0.2.0_amd64.rpm
+```
+
+Both packages provide `hpo` and `hyperoptimizer`. Package files will be available
+starting with the first GoReleaser release; the existing v0.1.0 release has archives only.
+These downloads do not configure an APT or YUM repository for automatic updates.
 
 ### Build from source
 
